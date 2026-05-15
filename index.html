@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <title>JEDDIT</title>
+  <style>
+    body { font-family: sans-serif; background: #DAE0E6; margin: 0; }
+    header { background: white; border-bottom: 1px solid #edeff1; padding: 8px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+    .logo { color: #FF4500; font-size: 20px; font-weight: 900; cursor: pointer; }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-left: auto; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; user-select: none; }
+
+    /* Layout */
+    .layout { max-width: 1100px; margin: 20px auto; padding: 0 20px; display: flex; gap: 24px; align-items: flex-start; }
+    .main { flex: 1; min-width: 0; }
+    .sidebar { width: 280px; flex-shrink: 0; }
+
+    /* Subreddit banner */
+    .sub-banner { height: 80px; border-radius: 12px 12px 0 0; margin-bottom: 0; }
+    .sub-info { background: white; border: 1px solid #ccc; border-top: none; border-radius: 0 0 12px 12px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+    .sub-icon-large { font-size: 32px; margin-top: -32px; background: white; border-radius: 50%; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; border: 3px solid white; }
+    .sub-title { font-size: 22px; font-weight: 800; }
+    .sub-name-small { font-size: 13px; color: #888; }
+
+    /* Post cards */
+    .post { background: white; border: 1px solid #ccc; border-radius: 12px; margin-bottom: 10px; display: flex; cursor: pointer; }
+    .post:hover { border-color: #888; }
+    .vote { width: 40px; background: #f8f9fa; display: flex; flex-direction: column; align-items: center; padding: 8px 4px; gap: 2px; font-size: 18px; color: #ccc; border-radius: 12px 0 0 12px; }
+    .vote span { font-size: 12px; font-weight: bold; color: #333; }
+    .body { padding: 8px; flex: 1; }
+    .meta { font-size: 12px; color: #888; margin-bottom: 4px; }
+    .meta .sublink { color: #FF4500; font-weight: bold; cursor: pointer; }
+    .meta .sublink:hover { text-decoration: underline; }
+    .meta b { color: #1c1c1c; }
+    h2 { font-size: 18px; font-weight: 500; margin: 0 0 6px; }
+    .foot { font-size: 12px; color: #888; }
+
+    /* Post detail */
+    .back { color: #FF4500; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 12px; display: inline-block; }
+    .back:hover { text-decoration: underline; }
+    .post-full { background: white; border: 1px solid #ccc; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .post-full h1 { font-size: 20px; font-weight: 500; margin: 6px 0 10px; }
+    .post-full p { font-size: 14px; line-height: 1.6; color: #333; }
+
+    /* Comments */
+    .comments { background: white; border: 1px solid #ccc; border-radius: 12px; padding: 16px; }
+    .comment { margin-bottom: 12px; }
+    .comment-meta { font-size: 12px; color: #888; margin-bottom: 4px; }
+    .comment-meta b { color: #1c1c1c; }
+    .comment-body { font-size: 14px; color: #333; line-height: 1.5; }
+    .replies { margin-left: 20px; border-left: 2px solid #edeff1; padding-left: 12px; margin-top: 10px; }
+    #lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:1000; align-items:center; justify-content:center; cursor:zoom-out; }
+    #lightbox.open { display:flex; }
+    #lightbox img { max-width:90vw; max-height:90vh; object-fit:contain; border-radius:4px; box-shadow:0 4px 40px rgba(0,0,0,0.6); cursor:default; }
+    #lb-prev, #lb-next { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.15); color:#fff; border:none; border-radius:50%; width:44px; height:44px; font-size:24px; cursor:pointer; line-height:1; transition:background 0.15s; }
+    #lb-prev:hover, #lb-next:hover { background:rgba(255,255,255,0.3); }
+    #lb-prev { left:20px; }
+    #lb-next { right:20px; }
+    #lb-counter { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.6); font-size:13px; }
+    .lightbox-img { cursor:zoom-in; border-radius:4px; box-shadow:0 2px 12px rgba(0,0,0,0.15); }
+    .audio-player { display:flex; align-items:center; gap:10px; padding:7px 12px; background:#f6f7f8; border-radius:8px; cursor:pointer; margin:5px 0; user-select:none; }
+    .audio-player:hover { background:#edeff1; }
+    .audio-player .pi { width:16px; text-align:center; flex-shrink:0; font-size:11px; font-style:normal; }
+    .audio-player .pt { font-size:13px; font-weight:500; color:#1c1c1c; }
+
+    /* Sidebar */
+    .sidebar-card { background: white; border: 1px solid #ccc; border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+    .sidebar-card-header { background: #FF4500; color: white; padding: 8px 12px; font-weight: bold; font-size: 13px; }
+    .sidebar-card-body { padding: 8px; }
+    .sub-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .sub-row:hover { background: #f6f7f8; }
+    .sub-row-icon { font-size: 18px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .sub-row-name { font-weight: bold; }
+    .sub-row-members { font-size: 11px; color: #888; }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" onclick="showFeed(null)">JEDDIT</div>
+    <div class="user-avatar" id="user-avatar" onclick="showFeed('about')" title="jed-2026"></div>
+  </header>
+
+  <div class="layout">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main" id="main"></div>
+  </div>
+
+  <script>
+    // ============================================================
+    // DATA — edit this section to customize your site
+    // ============================================================
+
+    const SUBREDDITS = [
+      { id: 'about',      name: 'j/about',      title: 'About',       icon: '☻︎', color: '#34495E', members: '1' },
+      { id: 'experience', name: 'j/experience', title: 'Experience',  icon: '✎︎', color: '#E03D00', members: '1' },
+      { id: 'education',  name: 'j/education',  title: 'Education',   icon: '⚑︎', color: '#1971C2', members: '1' },
+      { id: 'podcast',    name: 'j/podcast',    title: 'The Podcast', icon: '♫︎', color: '#9C36B5', members: '1' },
+      { id: 'hobbies',    name: 'j/hobbies',    title: 'Hobbies',     icon: '♟︎', color: '#F59F00', members: '1' },
+      { id: 'contact',    name: 'j/contact',    title: 'Contact',     icon: '☎︎', color: '#2C8A6E', members: '1' },
+    ];
+
+    const COMPANIES = [
+      { id: 'mind-company', name: 'The Mind Company', logo: 'images/elevate_labs_llc_logo.jpeg',    posts: ['mind-company-leagues', 'mind-company-puzzles', 'mind-company-spark'] },
+      { id: 'lemonade',     name: 'Lemonade',         logo: 'images/lemonade_inc__logo.jpeg',        posts: ['lemonade'] },
+      { id: 'etsy',         name: 'Etsy',             logo: 'images/etsy_logo.jpeg',                 posts: ['etsy-ar', 'etsy-review'] },
+      { id: 'yammer',       name: 'Microsoft',         logo: 'images/microsoft_logo.jpeg',            posts: ['yammer'] },
+      { id: 'idea-factory', name: 'Idea Factory',     logo: 'images/the_idea_factory_2_logo.jpeg',   posts: ['idea-factory'] },
+    ];
+
+    const POSTS = [
+      {
+        id: 'about-jed', images: ['images/me.png'],
+        subreddit: 'about',
+        thumbnail: 'images/me.png',
+        author: 'jed-2026', flair: 'Current Jed',
+        time: 'just now', votes: '10',
+        title: "Hi, I'm Jed. Nice to meet you!",
+        body: `I've been a professional writer for over a decade. I started my career at The Idea Factory, a small advertising agency in Newfoundland, writing commercials for TV and radio. I moved into UX & Product writing from there, working for Yammer, Etsy, and Lemonade — an enterprise social network, a two-sided online marketplace, and chatbot-powered insurance, respectively.\n\nMost recently, I was at The Mind Company (fka Elevate Labs), where I helped design and ship multiple features; managed the content of over 40 brain-training games, including correcting, updating, testing, and pushing to prod; oversaw the addition of multiple new daily puzzles to the Elevate app; and wrote puzzles for our daily trivia app, Spark.\n\nI adore doing meaningful work with an engaged and talented team, and thrive when developing a unique product voice and style, always focusing on consistency, clarity, comprehension, and camaraderie.\n\nI have a BA in Theatre from Muhlenberg College, and an MA in Folklore from Memorial University of Newfoundland.\n\nMy dog has no degrees or work experience but is very handsome.`,
+        comments: [
+          { author: 'jed-2016', flair: 'Yammer Era', time: 'just now', votes: 412, text: 'We finally get a dog!! What is his name??', replies: [
+            { author: 'jed-2026', flair: 'Current Jed', time: 'just now', votes: 891, text: 'Teddy! He\'s a Great Pyrenees mix and a big beautiful dummy', replies: [] }
+          ]}
+        ]
+      },
+      {
+        id: 'experience-intro',
+        subreddit: 'experience',
+        thumbnail: 'images/leaguename.PNG',
+        author: 'jed-2026', flair: 'Current Jed',
+        time: 'just now', votes: '8',
+        title: 'Where I\'ve worked and what I\'ve done',
+        body: `I've spent the last decade and half as a professional writer. I got my start copywriting at a small ad agency in Newfoundland, Canada. From there I moved into writing for app and website experiences, and I've never looked back.\n\nWhether you call it product writing, UX writing, or content designing, what I've been doing all this time remains the same: crafting flows in a specific voice that enable customers to do what they're trying to do, while at the same time achieving a company's goals.\n\nBelow are some examples of my work from over the years.`,
+        comments: []
+      },
+      {
+        id: 'mind-company-leagues',
+        subreddit: 'experience',
+        author: 'jed-2026', flair: 'Current Jed',
+        time: 'just now', votes: '9',
+        title: 'The Mind Company - Anonymous Users in Elevate Leagues',
+        body: `Elevate is a brain-training app with 40+ daily games across categories like math, speaking, and writing. While I was there, we launched Leagues: a weekly leaderboard where users earn XP and compete among a group of 19 others, with rewards for finishing at the top.
+
+We tested Leagues extensively before rolling it out, and found that a majority of users enjoyed the extra layer of competition. But after launch, a small and vocal minority of users pushed back, leaving bad reviews and negative posts on Reddit. After discussing the feedback with our CEO, we moved quickly to design a way for those users to hide Leagues from their experience. And in doing that, we discovered another problem.
+
+<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">What's in a Name</strong>
+Up until now, users had not been able to see other users' names. With Leagues, we had decided to show a user's first name and last initial. But Elevate had historically allowed users to sign up without entering a name, which meant a portion of our user base had no name in the system at all. Additionally, we had to figure out a way to deal with users who intentionally edited their name to something inappropriate.
+
+For the problematic name case, a backend engineer and I integrated an LLM to screen user names for problematic content, replacing flagged ones automatically. For both those users and nameless ones, we generated placeholders, like "Player72951". But we'd gotten internal feedback that those players seemed like bots, and by allowing users to opt-out we were about to potentially have many more of these bot-coded players.
+<div style="margin:12px auto;max-width:320px;text-align:center"><img src="images/Player12348.PNG" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"></div>
+<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">A Weekend of Naming</strong>
+I had been pushing for a more robust anonymous-naming system, and when the CEO suggested a similar concept for a solution, I took the idea and ran with it. After a chat with the CEO, I spent the weekend working closely with an engineer to build a better naming system. The idea: randomized adjective-noun combinations that felt natural and friendly.
+
+Assisted by an LLM I generated a large pool of adjectives and animal names, then manually reviewed them all, checking for offensive combinations, double meanings, slang, anything that could feel bad or wrong. Partway through this process, I realized that some of the names I'd approved were too long and would truncate in the app's UI, so I went back through the entire list. I trimmed things down so even that the longest adjective-noun combination would fit, testing directly in the iOS and Android apps until it was pixel-perfect.
+<div style="margin:12px auto;max-width:320px;text-align:center"><img src="images/adj-nouns.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">The final lists: 120 adjectives and 145 nouns, making 17,400 possible combinations.</div></div>
+
+Later, we also took this opportunity to close the loopholes that exacerbated the problem in the first place. I worked closely with our engineers to update the app so name entry was required at sign-up, and we also removed the ability to delete your name from your profile on iOS.
+
+<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">The Result</strong>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0"><img src="images/leaguename.PNG" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/AffableAddax.PNG" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"></div>
+The content was ready to go by Monday, and we shipped that week. Positive feedback about the opt-out option started coming in immediately, which was a sharp contrast to the complaints we'd seen. And the adjective-noun names? I never saw a single piece of negative feedback about them.
+
+`,
+        comments: []
+      },
+      {
+        id: 'mind-company-puzzles',
+        subreddit: 'experience',
+        author: 'jed-2026', flair: 'Current Jed',
+        time: 'just now', votes: '8',
+        title: 'The Mind Company - 3 New Daily Elevate Puzzles',
+        body: `Elevate added a daily crossword a few years ago. When the data showed it was meaningfully moving metrics, we decided to try adding more daily puzzles. I was integral in adding three to the app: Wordbend, Colorlink, and Crossmath.
+
+<strong>Wordbend</strong> and <strong>Colorlink</strong> were ported over from another app in our suite. I worked extensively on both to make sure they felt at home in Elevate, matching our visual style, UX patterns, SFX, animation, and content standards. Both before adding and during their betas, I conducted extensive user research: interviews, surveys, and digging into the numbers to understand what people thought about specific content. We then used those findings to shape the content going forward.
+
+The third puzzle <strong>Crossmath</strong> is a format that exists in several apps already, so we wanted to make sure it felt like Elevate. Working closely with our game designer, we built our own version from scratch, involving multiple rounds of internal testing and adjustments to how it was generated.
+
+It was extremely important that these new puzzles look and feel like they belonged to the same family as the crossword. That meant paying strict attention to the details, and I worked closely with our sound designer, games engineer, and the design team, going back and forth until everything felt perfect.
+<div style="margin-top:12px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 6px"><img src="images/1-crossword_difficulty.PNG" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/2-wordbend_solved.PNG" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/3-colorlink_clear.PNG" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/4-crossmath_reset.PNG" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"></div><div style="font-size:12px;color:#888">Screens from all four daily puzzles, illustrating their visual and experiential similarities.</div></div>
+
+Most people already know how to do a crossword, so that puzzle has no tutorial. When we decided to add Wordbend, we knew it would need some explaining. So we implemented a simple set of screens to guide the user, followed by an interactive swiping animation on the first word of the first puzzle they'd see. We followed this pattern for Colorlink, with a similar set of screens and interactive tutorial. Crossmath, too, got a set of instructions.
+
+For each of these, my goal was always to keep it simple and clear, in an order that made sense. And based on the positive feedback our new puzzles have received, I think we nailed it.
+<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Wordbend</strong>
+<div style="position:relative;margin:8px 0;border-radius:6px;overflow:hidden;background:#111"><div data-ci="0" style="display:flex;transition:transform 0.3s ease"><img src="images/screenshot_riverbend_000.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_riverbend_001.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_riverbend_002.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_riverbend_003.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_riverbend_004.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"></div><button onclick="carouselNav(this,-1,5)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">‹</button><button onclick="carouselNav(this,1,5)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">›</button><div data-cc style="position:absolute;bottom:8px;right:10px;color:#fff;font-size:12px;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:10px">1 / 5</div></div>
+<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Colorlink</strong>
+<div style="position:relative;margin:8px 0;border-radius:6px;overflow:hidden;background:#111"><div data-ci="0" style="display:flex;transition:transform 0.3s ease"><img src="images/screenshot_colorlink_000.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_colorlink_001.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_colorlink_002.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_colorlink_003.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"></div><button onclick="carouselNav(this,-1,4)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">‹</button><button onclick="carouselNav(this,1,4)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">›</button><div data-cc style="position:absolute;bottom:8px;right:10px;color:#fff;font-size:12px;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:10px">1 / 4</div></div>
+<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Crossmath</strong>
+<div style="position:relative;margin:8px 0;border-radius:6px;overflow:hidden;background:#111"><div data-ci="0" style="display:flex;transition:transform 0.3s ease"><img src="images/screenshot_crossmath_000.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_crossmath_001.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_crossmath_002.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"></div><button onclick="carouselNav(this,-1,3)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">‹</button><button onclick="carouselNav(this,1,3)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">›</button><div data-cc style="position:absolute;bottom:8px;right:10px;color:#fff;font-size:12px;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:10px">1 / 3</div></div>
+
+For our word puzzles, I was involved in weekly playtesting, sessions where the puzzle writer and I played through the puzzles in-app, to make sure the difficulty levels felt right, as well as to catch both grammatical and factual errors. Our backend engineers had built custom CMSes for each puzzle, so I could make fixes on the fly, and even suggest improvements to how they worked for future updates. And when a user wrote in with an error we missed, I'd hop right in and make the update.`,
+        comments: []
+      },
+      {
+        id: 'mind-company-spark',
+        subreddit: 'experience',
+        author: 'jed-2026', flair: 'Current Jed',
+        time: 'just now', votes: '7',
+        title: 'The Mind Company - Spark Days: Robots, Puppets, and Shakespeare',
+        body: `Spark is a daily trivia app launched by The Mind Company last year. Each day is built around a theme : ants, the underworld, dinosaurs, moss, etc. Each day consists of four puzzles that explore the theme from different angles. I was one of a small group of writers across the company who contributed content to Spark.
+
+For each day I authored, I wrote everything: the fronts and backs of the cards, the nodes and hyperlink texts in Links, and the Spotlights that followed each puzzle. Below are examples from three of my favorites.
+
+<strong style="display:block;margin-top:16px">Puzzle: This or That / Theme: Shakespeare</strong>
+Ten cards, two columns. The player has to sort them correctly by category. This or That usually relies on a punny or otherwise clever combination of categories; the theme for this one was "Bird or Bard".
+<strong style="display:block;margin-top:16px">Puzzle: Chrono / Theme: Puppets</strong>
+The player is shown eight events from the history of puppetry, which they must sort into the correct chronological order.
+<strong style="display:block;margin-top:16px">Puzzle: Links / Theme: Robots</strong>
+Links is more complicated. It's four rounds with an increasing number of cards, each with a grid of facts connected to blank spots. The player must place the cards so that all the connections are true.
+<div style="display:flex;gap:10px;margin:20px 0 4px"><div onclick="openVideoLightbox('https://www.dropbox.com/scl/fi/3iwh8nrrpja6bsfidh3cz/SPARK-This_or_That-Shakespeare.mov?rlkey=ql3o3x7bjnge7msxjx794cpn8&st=zqflgd0s&raw=1')" style="flex:1;cursor:pointer;position:relative;border-radius:8px;overflow:hidden;background:#000"><video src="https://www.dropbox.com/scl/fi/3iwh8nrrpja6bsfidh3cz/SPARK-This_or_That-Shakespeare.mov?rlkey=ql3o3x7bjnge7msxjx794cpn8&st=zqflgd0s&raw=1" muted preload="metadata" onloadedmetadata="this.currentTime=0.5" style="width:100%;display:block;pointer-events:none"></video><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.25)"><div style="width:38px;height:38px;background:rgba(255,255,255,0.88);border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;margin-left:3px">▶</span></div></div><div style="position:absolute;bottom:0;left:0;right:0;padding:5px 8px;background:linear-gradient(transparent,rgba(0,0,0,0.75));color:#fff;font-size:11px;font-weight:600">"Bard to the Bone" - This or That</div></div><div onclick="openVideoLightbox('https://www.dropbox.com/scl/fi/6jturq5tkch0xbjf7cgyv/SPARK-Chrono-Puppets.mov?rlkey=6w2abckn4us2var14d8npy8x6&st=l90duh1h&raw=1')" style="flex:1;cursor:pointer;position:relative;border-radius:8px;overflow:hidden;background:#000"><video src="https://www.dropbox.com/scl/fi/6jturq5tkch0xbjf7cgyv/SPARK-Chrono-Puppets.mov?rlkey=6w2abckn4us2var14d8npy8x6&st=l90duh1h&raw=1" muted preload="metadata" onloadedmetadata="this.currentTime=0.5" style="width:100%;display:block;pointer-events:none"></video><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.25)"><div style="width:38px;height:38px;background:rgba(255,255,255,0.88);border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;margin-left:3px">▶</span></div></div><div style="position:absolute;bottom:0;left:0;right:0;padding:5px 8px;background:linear-gradient(transparent,rgba(0,0,0,0.75));color:#fff;font-size:11px;font-weight:600">"Puppet Shows" - Chrono</div></div><div onclick="openVideoLightbox('https://www.dropbox.com/scl/fi/4nq0z04ka9g2m3vbwf743/SPARK-Links-Robots.mov?rlkey=l4hk7p0i3snej0v9vfwlqgonv&st=kvmpdijh&raw=1')" style="flex:1;cursor:pointer;position:relative;border-radius:8px;overflow:hidden;background:#000"><video src="https://www.dropbox.com/scl/fi/4nq0z04ka9g2m3vbwf743/SPARK-Links-Robots.mov?rlkey=l4hk7p0i3snej0v9vfwlqgonv&st=kvmpdijh&raw=1" muted preload="metadata" onloadedmetadata="this.currentTime=0.5" style="width:100%;display:block;pointer-events:none"></video><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.25)"><div style="width:38px;height:38px;background:rgba(255,255,255,0.88);border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;margin-left:3px">▶</span></div></div><div style="position:absolute;bottom:0;left:0;right:0;padding:5px 8px;background:linear-gradient(transparent,rgba(0,0,0,0.75));color:#fff;font-size:11px;font-weight:600">"They, Robots" - Links</div></div></div>
+
+In addition to writing my own days, I also playtested and suggested edits for other writers' puzzles every week as an integral part of the QA pipeline.`,
+        comments: []
+      },
+      {
+        id: 'lemonade',
+        subreddit: 'experience',
+        author: 'jed-2023', flair: 'Lemonade Era',
+        time: '3 years ago', votes: '7',
+        title: 'Lemonade - Chatbot Style Guide',
+        body: `I was the first and only UX & Product Writing Lead at Lemonade, which positions itself as insurance for Millennials and Gen Z. It's a carrier that wants to evolve with its customers over time, starting with renters insurance and then moving on to pet, car, homeowners, and life insurance, growing alongside them.
+
+Lemonade was built to be digital first, so users can sign up and make claims through the app or site, without ever talking to a real person.
+
+I worked closely with the PMs, designers, and translators on features and flows for all our products, from conception to launch and beyond. My primary focus was making sure our chatbots, Maya & Jim, were approachable, spoke simply and conversationally, and didn't confuse the user with jargon.
+
+But at the same time, all our language needed to be compliant. Working closely with Legal to make sure that what we said was easy to understand but would still hold up on a legal front was a challenge I greatly enjoyed. Striking that balance is crucial, and one that I worked on every day while at Lemonade.
+
+What follows are selected pages from a Style Guide I created – the first of its kind at the company, and a document that made the jobs of my coworkers (and my job!) much easier. After I shared it with the team, there was a noticeable improvement in their first passes at UX copy.
+
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0"><img src="images/IMG_9755.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9754.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9760.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9759.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9758.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9757.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9756.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9770.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9774.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9773.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9771.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9772.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9766.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9763.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9762.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9761.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9778.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9777.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"></div>`,
+        comments: [
+          { author: 'jed-2028', flair: 'Future Jed', time: 'just now', votes: 2028, text: 'Guys you are not gonna believe what chatbots are like just 5 years later…', replies: [] }
+        ]
+      },
+      {
+        id: 'etsy-ar',
+        subreddit: 'experience',
+        author: 'jed-2021', flair: 'Etsy Era',
+        time: '5 years ago', votes: '8',
+        title: 'Etsy - App AR Feature',
+        body: `In 2020, Etsy released an augmented reality feature on our iOS app, allowing users to preview wall art in their homes using their iPhones. I worked closely with the designer, PM, and engineers from the very start of the process to ensure the language in this brand new experience was clear and concise.
+
+<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Initial Design</strong>
+Here's the initial design. Mostly system copy, not a lot of explanation, and definitely not in Etsy's voice.
+<img src="images/oldAR.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;margin:8px 0;display:block">
+
+<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Initial Copy</strong>
+Here's the copy written by the PM. Better! But likely far too long.
+<img src="images/CaseStudies.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;margin:8px 0;display:block">
+
+<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">My First Draft Copy</strong>
+Here's my first pass, in product. Even though I'd shortened this, it's still too long — something I only realized once I saw it in action. Each of these steps can take a fraction of a second OR several seconds, so the copy needs to work in both situations.
+<div style="position:relative;margin:10px 0;border-radius:6px;overflow:hidden;background:#111"><div data-ci="0" style="display:flex;transition:transform 0.3s ease"><img src="images/oldAR1.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/oldAR2.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/oldAR3.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/oldAR4.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/oldAR5.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/oldAR6.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"></div><button onclick="carouselNav(this,-1,6)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">‹</button><button onclick="carouselNav(this,1,6)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">›</button><div data-cc style="position:absolute;bottom:8px;right:10px;color:#fff;font-size:12px;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:10px">1 / 6</div></div>
+
+<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Final Copy</strong>
+It needed to be parsable at a glance, but if you end up with it on your screen for longer than an instant, it needed to help you move forward. After using the feature for a while, I edited things down to the final version in the app seen here. This version tells you what you need to know, in the order you need to know it. It leads with only the information you need if it works right away, but follows up with the details you'd need if it didn't.
+<div style="position:relative;margin:10px 0;border-radius:6px;overflow:hidden;background:#111"><div data-ci="0" style="display:flex;transition:transform 0.3s ease"><img src="images/finalAR1.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/finalAR2.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"></div><button onclick="carouselNav(this,-1,2)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">‹</button><button onclick="carouselNav(this,1,2)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">›</button><div data-cc style="position:absolute;bottom:8px;right:10px;color:#fff;font-size:12px;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:10px">1 / 2</div></div>
+
+This feature resulted in an increase in conversion! We also received some good press, were featured in the App Store, and got some lovely write-ups praising the "clear, stepped instructions" of our "deceptively simple approach".
+
+All in all, a successful first step into integrating a new technology, and one that we would iterate on moving forward.`,
+        comments: []
+      },
+      {
+        id: 'etsy-review',
+        subreddit: 'experience',
+        author: 'jed-2021', flair: 'Etsy Era',
+        time: '5 years ago', votes: '7',
+        title: 'Etsy - App Review Flow',
+        body: `The review flow in Etsy's iOS app hadn't been updated in years, and generally wasn't leading users to leave quality reviews. So we set out to completely redesign it, shifting to a multi-step process with a more conversational style.
+
+<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Old Review Flow</strong>
+<img src="images/oldreviewflow.png" class="lightbox-img" onclick="openLightbox(this.src)" style="max-width:100%;width:auto;border-radius:4px;margin:8px auto;display:block">
+
+Thanks to in-depth interviews with Etsy customers where we studied their path-to-purchase journey with a focus on the listing screen, we learned that reviews were most likely to lead to a sale when they contained text and a photo, and covered multiple topics.
+
+So the team and I set out to design a flow that would increase the likelihood that we would get those things, without decreasing the amounts of reviews we'd get.
+
+We assumed that if we redesigned the flow, Etsy buyers would leave better reviews, and that better reviews would mean more sales for our sellers.
+
+<img src="images/newreview1.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;margin:8px 0;display:block">
+
+Notice the "Submitted" that happens right after the user selects their rating. During the development process there was some debate over WHEN we should send the info to ourselves: all at once at the end, or at several moments along the way.
+
+I argued strongly for the latter, with the idea that getting SOME information from the user would be better than NONE, since we were increasing the length and complexity of the flow, and thus more likely to see drop-off before completion.
+
+<img src="images/newreview2.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;margin:8px 0;display:block">
+
+I've made the process more conversational, asking the user specific questions along the way so they're more likely to get into a conversational mindset, and write something helpful and true about their purchase.
+
+<img src="images/newreview3.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;margin:8px 0;display:block">
+
+We let them know we'd love to see a photo, while helping them relax about their photography skills. The hand-drawn-style icons in the blue circles animated in and out, providing a little burst of positive feedback at each moment of submitting info.
+
+<img src="images/newreview4.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;margin:8px 0;display:block">
+
+At the end, we thank them, and send them off to hopefully buy something new!
+
+This upgrade increased both the average number of reviews submitted, and the amount of people who submitted a review with text. This is great because even though we made it longer, we didn't see a drop off in completion. On the contrary! More people left more in-depth reviews than before.
+
+It also gave us subratings for item quality, seller communication, and shipping, information we never had access to before, and information we could now use to better understand our sellers and make things better for them.`,
+        comments: [
+          { author: 'jed-2023', flair: 'Lemonade Era', time: 'just now', votes: 312, text: 'I love that pineapple magnet.', replies: [] }
+        ]
+      },
+
+      {
+        id: 'yammer',
+        subreddit: 'experience',
+        author: 'jed-2016', flair: 'Yammer Gang',
+        time: '9 years ago', votes: '5',
+        title: 'Microsoft - chat app Yammer Now',
+        body: `Of all the projects I worked on at Yammer — the enterprise social network acquired by Microsoft — near the top of my favorites is the standalone chat app, Yammer Now.
+
+As the sole UX Writer (then known as a "Product Copywriter") on the team, I was responsible for all UX copy in the app, as well as the App Store description, marketing copy, and release notes.
+
+It was a challenging and interesting experience: a scrappy, tight-knit squad started with an all-day brainstorm session and, over several months, developed multiple prototypes based on both qualitative and quantitative research.
+
+Yammer Now integrated seamlessly with Yammer and allowed for quick and easy chats with your coworkers. The app dovetailed with our "Online Now" chat feature on the web, so the copy was a combination of totally new language and careful alterations of existing language from the web experience.
+
+<div style="position:relative;margin:16px 0 8px;border-radius:6px;overflow:hidden;background:#111"><div data-ci="0" style="display:flex;transition:transform 0.3s ease"><img src="images/Yammer-Now-01.png" style="min-width:100%;max-height:560px;object-fit:contain"><img src="images/Yammer-Now-02.png" style="min-width:100%;max-height:560px;object-fit:contain"><img src="images/Yammer-Now-03.png" style="min-width:100%;max-height:560px;object-fit:contain"><img src="images/Yammer-Now-04.png" style="min-width:100%;max-height:560px;object-fit:contain"><img src="images/Yammer-Now-05.png" style="min-width:100%;max-height:560px;object-fit:contain"></div><button onclick="carouselNav(this,-1,5)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">‹</button><button onclick="carouselNav(this,1,5)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">›</button><div data-cc style="position:absolute;bottom:8px;right:10px;color:#fff;font-size:12px;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:10px">1 / 5</div></div>`,
+        comments: []
+      },
+      {
+        id: 'idea-factory',
+        subreddit: 'experience',
+        author: 'jed-2012', flair: 'Idea Factory Era',
+        time: '14 years ago', votes: '9',
+        title: 'The Idea Factory - Radio spots',
+        body: `I spent several years at The Idea Factory, a small advertising agency based in Newfoundland, Canada. Here's some of my favorite work from that era.
+
+<strong>Get a Big Reaction! / The Great Wine Revolution</strong>
+<em>Client: Newfoundland and Labrador Liquor Corporation</em>
+
+ The Get a Big Reaction! spots built on creative from the previous year — our good-natured host Colin accosts Christmas shoppers and shows them, via a machine called The Gift-o-matic™, how their terrible gifts are going to land. I evolved that concept by turning the Gift-o-matic™ into an audio machine that lets Colin's subjects hear the enthusiastically positive reactions gift-getters would have when they received a new NLC specialty gift card.
+
+<div style="margin:12px 0">
+<div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">NLC – Get a Big Reaction! – "The Royal Treatment" (:60)</span><audio src="https://www.dropbox.com/scl/fi/aencv7o8w04r956o5crqp/NLC_1RoyalTreatment_60radio.mp3?rlkey=ai5eld1fmnmgb27jjhftdk2gp&st=wpn895ly&raw=1"></audio></div>
+<div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">NLC – Get a Big Reaction! – "Wolf Blast" (:60)</span><audio src="https://www.dropbox.com/scl/fi/kdkm0roux7ivr39631zix/NLC_2WolfBlass_60radio.mp3?rlkey=hcb6gm5vel6vt5m4rckdm7ufq&st=kd5akjug&raw=1"></audio></div>
+<div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">NLC – Get a Big Reaction! – "Bud Right" (:60)</span><audio src="https://www.dropbox.com/scl/fi/m1xrif5yvaqofjz1dky7z/NLC_3BudRight_60radio.mp3?rlkey=1lxugehphrbyndxrgy3zu2fmt&st=9j8ba68p&raw=1"></audio></div>
+
+The Great Wine Revolution spots I love for their ability to get their message across in 15 seconds while still catching your attention. I've still got a soft spot for ol' Sir Branswort.
+
+<div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">NLC – The Great Wine Revolution – "Sir Branswort" (:15)</span><audio src="https://www.dropbox.com/scl/fi/rso11s1jhxhxpcvwr1aiz/NLC_TheGreatWineRevolution_Branswort.mp3?rlkey=oygxq4sofnje64zwc97ft0htv&st=afe080qk&raw=1"></audio></div>
+<div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">NLC – The Great Wine Revolution – "Karl" (:15)</span><audio src="https://www.dropbox.com/scl/fi/7cdix9cw4209f8oruzted/NLC_TheGreatWineRevolution_Karl.mp3?rlkey=prswrckegvzo6atcr6estzmkv&st=nii5ncd0&raw=1"></audio></div>
+
+<strong>The Adventures of Steve &amp; Alan</strong>
+<em>Client: Eastlink Cable Company</em>
+
+These were the first things I wrote at The Idea Factory. I've always been a fan of the smart-guy/dumb-guy dichotomy, and having Steve explain things to Alan turned out to be a perfect vehicle for showcasing Eastlink's suite of entertainment options. The actors playing Steve and Alan were my first choices for the roles, and they both nailed it.
+
+<div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">Eastlink – Steve &amp; Alan – "So Clear..." (:30)</span><audio src="https://www.dropbox.com/scl/fi/ot50tvb2pgnklx04005rt/eastlink_stvnalln_hdtv_v2.mp3?rlkey=mfvjrhzgonvtrbgr2yuz9mne2&st=2xv88yna&raw=1"></audio></div>
+<div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">Eastlink – Steve &amp; Alan – "That Button" (:30)</span><audio src="https://www.dropbox.com/scl/fi/zc7r340j5v0vv7bn4jt9m/eastlink_stvnalln_ondemand.mp3?rlkey=gvdbnt7oi60aeq9zb0j3wx8tm&st=j5uz9hn0&raw=1"></audio></div>
+<div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">Eastlink – Steve &amp; Alan – "The Lottery!" (:30)</span><audio src="https://www.dropbox.com/scl/fi/ew27ysmljj1e2r8so4qse/eastlink_stvnalln_homephone.mp3?rlkey=20m6qw5hrlkzjxdj9ucnb2v4d&st=v5rss0as&raw=1"></audio></div>
+<div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">Eastlink – Steve &amp; Alan – "Dark Elf Powers" (:30)</span><audio src="https://www.dropbox.com/scl/fi/7gw6owptz4b1lv254e2sb/eastlink_stvnalln_gaming.mp3?rlkey=0cu10dw4p888c7e9lv8aurusi&st=8mus023y&raw=1"></audio></div>
+<div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">Eastlink – Steve &amp; Alan – "WWTBAWP?" (:30)</span><audio src="https://www.dropbox.com/scl/fi/8hmgpzmukjkkitncxsbmd/eastlink_stvnalln_dvr.mp3?rlkey=aem67o4poinvvvmzdqdxtl5t2&st=yrn7dw75&raw=1"></audio></div>
+<div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">Eastlink – Steve &amp; Alan – "Faster?" (:30)</span><audio src="https://www.dropbox.com/scl/fi/mn5x77a7ybwi2pog2vt2p/eastlink_stvnalln_hsi.mp3?rlkey=dgdw9c7ahbz1su82p78pmkqgt&st=7geddfsx&raw=1"></audio></div>`,
+        comments: [
+          { author: 'jed-2026', flair: 'Current Jed', time: 'just now', votes: 426, text: 'I still think about Steve & Alan sometimes, those knuckleheads', replies: [] }
+        ]
+      },
+      {
+        id: 'education-intro',
+        subreddit: 'education',
+        thumbnail: 'images/CAT.jpg',
+        author: 'jed-2026', flair: 'Current Jed',
+        time: 'just now', votes: '7',
+        title: 'BA in Theatre, MA in Folklore',
+        body: `I've never met a Content Designer who set out specifically to be one. I've found that we all came to it from different directions, but that our strong senses of empathy and wide-ranging interests made us perfect for the role. Here's the path I took.
+\n<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Bachelor of Arts in Theatre, Muhlenberg College</strong>\nI started college planning to get a double major in physics and theatre. My higher level math skills weren't quite up to snuff, however, so I went all in on the stage. Spending four years immersed in the world of acting taught me a lot about the subject, but what it also did was hone my capacity to understand the desires of others. A good actor truly puts themselves into another's shoes, and that skill is crucial for content designers as they view a flow from the user's point of view.
+\nAnother thing good actors do? Really pay attention to the others on stage. An actor who is just waiting for their turn to say their line will lose the audience. But an actor who's actually looking, listening, and reacting to what they're seeing and hearing? The audience will love it. And this too is a skill I've carried with me into my career: really listen, really see, and then react to what I've witnessed with action.
+\n<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Master of Arts in Folklore, Memorial University of Newfoundland</strong>\nAfter college I decided I wanted more college, and headed off to the island of Newfoundland to pursue a degree in Folklore. I studied legends, folktales, local traditions, intangible cultural heritage, and more while performing in a local production of CATS in my spare time. The study of folklore is really the study of the stories we tell each other and ourselves to make sense of the world. It's about the things we share, and why we share them, and what we hope others will get out of that.
+\nMy deep understanding of the how and why of storytelling is another skill I call upon frequently in my work as a content designer.
+\nI wrote a thesis — it's about applying the lens of folktale structuralism to personal experience recovery narratives. You can <a href="https://memorial.scholaris.ca/server/api/core/bitstreams/1dfc547a-7a8d-432c-a24b-d0dad0ac1e92/content" target="_blank" style="color:#FF4500;font-weight:bold">read it here</a>.`,
+        comments: [
+          { author: 'jed-1999', flair: 'HS Grad', time: 'just now', votes: 634, text: 'Are you telling me I graduate college and go <i>right back</i> to school again? I don\'t believe this.', replies: [
+            { author: 'jed-2005', flair: 'Boston Era', time: 'just now', votes: 1200, text: 'No. You do odd jobs in Boston for a few years in between. You\'re gonna love working for Ghosts & Gravestones', replies: [] }
+          ]}
+        ]
+      },
+      {
+        id: 'podcast',
+        subreddit: 'podcast',
+        thumbnail: 'images/JEDEDIARIES.jpg',
+        author: 'jed-2018', flair: 'Podcast Jed',
+        time: '8 years ago', votes: '9',
+        title: 'Introducing… The Jedediaries',
+        body: `<div style="display:flex;gap:16px;align-items:flex-start"><img src="images/JEDEDIARIES.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:160px;height:160px;object-fit:cover;border-radius:4px;flex-shrink:0;cursor:zoom-in"><div>In 2018, I did a weekly year-long podcast with my oldest friend, Torrey. Here's a synopsis:\n\n<i>25 years ago, a 12-year-old boy kept a diary. He wrote in it every single day of the year 1993. This year – 2018 – that boy is a 37-year-old man, and he's going through that diary, week by week, to see how he's different, how he's the same, and what we can learn by figuring out who we used to be. This is… <b>The Jedediaries</b>.</i>\n\nHave a listen <a href="https://thejedediaries.squarespace.com/" target="_blank" style="color:#FF4500;font-weight:bold">here</a>.</div></div>`,
+        comments: [
+          { author: 'jed-1993', flair: 'Child Jed', time: 'just now', text: 'wait what', replies: [] }
+        ]
+      },
+      {
+        id: 'hobbies-reading',
+        subreddit: 'hobbies',
+        thumbnail: 'images/AHA.png',
+        author: 'jed-2026', flair: 'Current Jed',
+        time: 'just now', votes: '8',
+        title: '"It&#39;s no better to be safe than sorry…"',
+        body: `A non-exclusive selection of things I enjoy doing in my spare time.
+<div style="margin:16px 0"><img src="images/AHA.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">While this is me performing A-Ha's Take On Me at my wedding, I'll also never turn down a karaoke night.</div></div>
+<div style="margin:16px 0"><img src="images/DD.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">I once ran a year-long biweekly Dungeons & Dragons campaign for some coworkers! And I'd do it again.</div></div>
+<div style="margin:16px 0"><img src="images/BOOK.jpeg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">Some of my books.</div></div>
+<div style="margin:16px 0"><img src="images/BIRD.jpeg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">I recently got a bird feeder with a video camera in it and my life has been changed for the better.</div></div>
+<div style="margin:16px 0"><img src="images/FOLIO.jpeg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">I live near Dartmouth College, and they have a real First Folio and anyone can see it!! This is it. (Not pictured: me freaking out.)</div></div>`,
+        comments: [
+          { author: 'jed-2003', flair: 'College Jed', votes: 847, time: 'just now', text: 'omg you get to <i>touch</i> a <i>First Folio???</i> Extremely jealous', replies: [] }
+        ]
+      },
+      {
+        id: 'contact',
+        subreddit: 'contact',
+        thumbnail: 'images/favicon.png',
+        author: 'jed-2026', flair: 'Current Jed',
+        time: 'just now', votes: '5',
+        title: "Let's talk.",
+        body: `<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px"><a href="mailto:JedediahBaker@gmail.com" style="color:#FF4500;font-weight:bold;font-size:15px;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><span style="color:#1c1c1c">→</span> Email</a><a href="https://www.linkedin.com/in/jedediahbaker/" target="_blank" style="color:#FF4500;font-weight:bold;font-size:15px;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><span style="color:#1c1c1c">→</span> LinkedIn</a><a href="JedediahBaker_resume-2026.pdf" target="_blank" style="color:#FF4500;font-weight:bold;font-size:15px;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><span style="color:#1c1c1c">→</span> Resume</a></div>I hope you've enjoyed this! Looking forward to connecting.`,
+        comments: []
+      },
+    ];
+
+    // ============================================================
+    // APP — no need to edit below
+    // ============================================================
+
+    let currentSub = null;
+
+    let lbImages = [], lbIndex = 0;
+    function openLightbox(src) {
+      lbImages = Array.from(document.querySelectorAll('#main .lightbox-img')).map(i => i.src);
+      lbIndex = lbImages.findIndex(s => s === src);
+      if (lbIndex < 0) lbIndex = 0;
+      const lb = document.getElementById('lightbox');
+      lb.querySelector('img').src = lbImages[lbIndex];
+      lb.classList.add('open');
+      updateLb();
+    }
+    function lbNav(dir) {
+      lbIndex = Math.max(0, Math.min(lbImages.length - 1, lbIndex + dir));
+      document.querySelector('#lightbox img').src = lbImages[lbIndex];
+      updateLb();
+    }
+    function updateLb() {
+      document.getElementById('lb-prev').style.opacity = lbIndex === 0 ? '0.2' : '1';
+      document.getElementById('lb-next').style.opacity = lbIndex === lbImages.length - 1 ? '0.2' : '1';
+      document.getElementById('lb-counter').textContent = lbImages.length > 1 ? `${lbIndex + 1} / ${lbImages.length}` : '';
+    }
+    document.addEventListener('keydown', e => {
+      const lb = document.getElementById('lightbox');
+      if (!lb.classList.contains('open')) return;
+      if (e.key === 'Escape') lb.classList.remove('open');
+      if (e.key === 'ArrowLeft') lbNav(-1);
+      if (e.key === 'ArrowRight') lbNav(1);
+    });
+
+    function openVideoLightbox(src) {
+      const vl = document.getElementById('video-lightbox');
+      const v = document.getElementById('vl-video');
+      v.src = src;
+      vl.style.display = 'flex';
+      v.play();
+    }
+    function closeVideoLightbox() {
+      const v = document.getElementById('vl-video');
+      v.pause();
+      v.src = '';
+      document.getElementById('video-lightbox').style.display = 'none';
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && document.getElementById('video-lightbox').style.display === 'flex') closeVideoLightbox();
+    });
+
+    function carouselNav(btn, dir, total) {
+      const track = btn.parentNode.querySelector('[data-ci]');
+      const counter = btn.parentNode.querySelector('[data-cc]');
+      const i = Math.max(0, Math.min(total - 1, +track.dataset.ci + dir));
+      track.dataset.ci = i;
+      track.style.transform = `translateX(-${i * 100}%)`;
+      counter.textContent = `${i + 1} / ${total}`;
+    }
+
+    function toggleAudio(el) {
+      const a = el.querySelector('audio'), icon = el.querySelector('.pi');
+      document.querySelectorAll('audio').forEach(x => {
+        if (x !== a) { x.pause(); const p = x.closest('.audio-player'); if (p) p.querySelector('.pi').textContent = '▶'; }
+      });
+      if (a.paused) { a.play(); icon.textContent = '⏸'; a.onended = () => icon.textContent = '▶'; }
+      else { a.pause(); icon.textContent = '▶'; }
+    }
+
+    function getSub(id) { return SUBREDDITS.find(s => s.id === id); }
+
+    function renderComments(comments) {
+      return comments.map(c => `
+        <div class="comment">
+          <div class="comment-meta"><b>${c.author}</b> · ${c.flair} · ${c.time}</div>
+          <div class="comment-body">${c.text}</div>
+          ${c.replies.length ? `<div class="replies">${renderComments(c.replies)}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function renderSidebar() {
+      const companyLinks = COMPANIES.map(c => `
+        <div onclick="showCompany('${c.id}')" style="font-size:12px;padding:3px 8px 3px 36px;cursor:pointer;color:#555;border-radius:4px;display:flex;align-items:center;gap:7px" onmouseover="this.style.background='#f6f6f6'" onmouseout="this.style.background=''"><img src="${c.logo}" style="width:18px;height:18px;object-fit:contain;border-radius:3px;flex-shrink:0"><span>${c.name}</span></div>
+      `).join('');
+      const rows = SUBREDDITS.map(s => `
+        <div class="sub-row" onclick="showFeed('${s.id}')">
+          <div class="sub-row-icon" style="background:${s.color}22;color:${s.color}">${s.icon}</div>
+          <div>
+            <div class="sub-row-name">${s.name}</div>
+            <div class="sub-row-members">${s.members} ${s.members === '1' ? 'member' : 'members'}</div>
+          </div>
+        </div>
+        ${s.id === 'experience' ? companyLinks : ''}
+      `).join('');
+
+      document.getElementById('sidebar').innerHTML = `
+        <div class="sidebar-card">
+          <div class="sidebar-card-body">
+            <div class="sub-row" onclick="showFeed(null)">
+              <div class="sub-row-icon" style="background:#FF450022;color:#FF4500">⇧︎</div>
+              <div><div class="sub-row-name">Home</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar-card">
+          <div class="sidebar-card-header">Communities</div>
+          <div class="sidebar-card-body">${rows}</div>
+        </div>
+<div class="sidebar-card">
+          <div class="sidebar-card-body" style="font-size:12px;color:#888;line-height:1.8;padding:12px">
+            <strong style="color:#1c1c1c">About JEDDIT</strong><br>
+            The portfolio for my application for a Senior Content Designer role at Reddit in May, 2026.<br><br>
+            Icon by ChatGPT. Code by Claude.<br>Words &amp; work by Jedediah Baker.
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPostContent(p) {
+      return `
+        <div style="background:white;padding:16px;border-bottom:1px solid #eee;overflow:hidden">
+          ${p.body.replace(/\n/g, '<br>')}
+        </div>
+        ${p.comments.length ? `<div style="background:white;padding:16px"><div style="font-weight:bold;margin-bottom:12px">Comments</div>${renderComments(p.comments)}</div>` : ''}
+      `;
+    }
+
+    function renderAccordionCards(posts) {
+      return posts.map(p => `
+        <div id="acard-${p.id}" class="post" onclick="expandPost('${p.id}')" style="cursor:pointer;margin-bottom:0">
+          <div class="vote">▲<span>${p.votes}</span>▼</div>
+          <div class="body">
+            <div class="meta">Posted by <b>${p.author}</b> · ${p.time}</div>
+            <h2>${p.title}</h2>
+            <div class="foot">${p.comments.length} ${p.comments.length === 1 ? 'comment' : 'comments'}</div>
+          </div>
+        </div>
+        <div id="aexpand-${p.id}" style="display:none;margin-bottom:16px;border:1px solid #ccc;border-top:none;border-radius:0 0 12px 12px;overflow:hidden"></div>
+      `).join('');
+    }
+
+    function expandPost(id) {
+      const expand = document.getElementById('aexpand-' + id);
+      const card = document.getElementById('acard-' + id);
+      if (!expand) return;
+      const isOpen = expand.style.display !== 'none';
+      // Close all
+      document.querySelectorAll('[id^="aexpand-"]').forEach(el => { el.style.display = 'none'; });
+      document.querySelectorAll('[id^="acard-"]').forEach(el => {
+        el.style.borderBottomLeftRadius = '';
+        el.style.borderBottomRightRadius = '';
+        el.style.marginBottom = '';
+      });
+      if (!isOpen) {
+        if (!expand.dataset.rendered) {
+          const p = POSTS.find(q => q.id === id);
+          expand.innerHTML = renderPostContent(p);
+          expand.querySelectorAll('audio').forEach(a => a.load());
+          expand.dataset.rendered = '1';
+        }
+        expand.style.display = 'block';
+        card.style.borderBottomLeftRadius = '0';
+        card.style.borderBottomRightRadius = '0';
+        card.style.marginBottom = '0';
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        history.replaceState(null, '', '#/post/' + id);
+      }
+    }
+
+    function showFeed(subId, openPostId) {
+      currentSub = subId;
+      let posts;
+      if (subId) {
+        posts = POSTS.filter(p => p.subreddit === subId);
+        if (posts.length === 1) { showPost(posts[0].id); return; }
+      } else {
+        // Home: one card per subreddit
+        posts = SUBREDDITS.map(s => POSTS.find(p => p.subreddit === s.id)).filter(Boolean);
+      }
+      const sub = subId ? getSub(subId) : null;
+
+      let banner = '';
+      if (sub && subId !== 'experience') {
+        banner = `
+          <div class="sub-banner" style="background:${sub.color}"></div>
+          <div class="sub-info">
+            <div class="sub-icon-large">${sub.icon}</div>
+            <div>
+              <div class="sub-title">${sub.title}</div>
+              <div class="sub-name-small">${sub.name} · ${sub.members} members</div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (subId) {
+        // Accordion for multi-post subreddit feeds
+        const backBtn = subId === 'experience' ? `<span class="back" onclick="showFeed(null)">← Back</span>` : '';
+        document.getElementById('main').innerHTML = backBtn + banner + renderAccordionCards(posts);
+        renderSidebar();
+        window.scrollTo(0, 0);
+        history.replaceState(null, '', '#/j/' + subId);
+        if (openPostId) expandPost(openPostId);
+        else if (subId === 'experience') expandPost(posts[0].id);
+        return;
+      }
+
+      // Home: card grid, clicking opens subreddit
+      const cards = posts.map(p => {
+        const sub = getSub(p.subreddit);
+        const subLink = `<span class="sublink" onclick="event.stopPropagation();showFeed('${p.subreddit}')">${sub ? sub.name : p.subreddit}</span>`;
+        const thumb = p.thumbnail ? `<img src="${p.thumbnail}" style="width:72px;height:72px;object-fit:cover;border-radius:6px;flex-shrink:0;margin:0 5px 0 12px;align-self:center">` : '';
+        return `
+          <div class="post" onclick="showFeed('${p.subreddit}', '${p.id}')">
+            <div class="vote">▲<span>${p.votes}</span>▼</div>
+            <div class="body">
+              <div class="meta">${subLink} · Posted by <b>${p.author}</b> · ${p.time}</div>
+              <h2>${p.title}</h2>
+              <div class="foot">${p.comments.length} ${p.comments.length === 1 ? 'comment' : 'comments'}</div>
+            </div>
+            ${thumb}
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('main').innerHTML = cards || '<div class="post-full">No posts here yet!</div>';
+      renderSidebar();
+      window.scrollTo(0, 0);
+      history.replaceState(null, '', '#/');
+    }
+
+    function showPost(id) {
+      const p = POSTS.find(p => p.id === id);
+      const sub = getSub(p.subreddit);
+      const subPostCount = POSTS.filter(q => q.subreddit === p.subreddit).length;
+      const backAction = subPostCount === 1 ? 'showFeed(null)' : `showFeed('${p.subreddit}')`;
+      document.getElementById('main').innerHTML = `
+        <span class="back" onclick="${backAction}">← Back</span>
+        <div class="post-full">
+          <div class="meta">
+            <span class="sublink" onclick="showFeed('${p.subreddit}')">${sub ? sub.name : p.subreddit}</span>
+            · Posted by <b>${p.author}</b> · ${p.flair} · ${p.time}
+          </div>
+          <h1>${p.title}</h1>
+          ${p.images && p.images.length ? `<div style="display:grid;grid-template-columns:repeat(${Math.min(p.images.length,2)},1fr);gap:6px;margin-bottom:12px;border-radius:4px;overflow:hidden">${p.images.map(src => `<img src="${src}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block">`).join('')}</div>` : ''}
+          <div style="overflow:hidden">${p.body.replace(/\n/g, '<br>')}</div>
+        </div>
+        ${p.comments.length ? `<div class="comments"><div style="font-weight:bold;margin-bottom:12px">Comments</div>${renderComments(p.comments)}</div>` : ''}
+      `;
+      renderSidebar();
+      window.scrollTo(0, 0);
+      history.replaceState(null, '', '#/post/' + id);
+    }
+
+    function showCompany(companyId, openPostId) {
+      const company = COMPANIES.find(c => c.id === companyId);
+      if (!company) return;
+      const posts = POSTS.filter(p => company.posts.includes(p.id));
+      document.getElementById('main').innerHTML = `<span class="back" onclick="showFeed('experience')">← j/experience</span>` + renderAccordionCards(posts);
+      renderSidebar();
+      window.scrollTo(0, 0);
+      history.replaceState(null, '', '#/company/' + companyId);
+      if (openPostId) expandPost(openPostId);
+      else if (posts.length === 1) expandPost(posts[0].id);
+    }
+
+    // Avatar
+    (function() {
+      const el = document.getElementById('user-avatar');
+      el.style.background = '#FF4500';
+      el.style.color = 'white';
+      el.textContent = '^_^';
+    })();
+
+    // Init
+    function route() {
+      const hash = location.hash.replace(/^#\/?/, '');
+      if (!hash || hash === '/') showFeed(null);
+      else if (hash.startsWith('j/')) showFeed(hash.slice(2));
+      else if (hash.startsWith('company/')) showCompany(hash.slice(8));
+      else if (hash.startsWith('post/')) {
+        const id = hash.slice(5);
+        const p = POSTS.find(q => q.id === id);
+        if (!p) { showFeed(null); return; }
+        const company = COMPANIES.find(c => c.posts.includes(id));
+        if (company) { showCompany(company.id, id); return; }
+        const subPosts = POSTS.filter(q => q.subreddit === p.subreddit);
+        if (subPosts.length > 1) { showFeed(p.subreddit, id); return; }
+        showPost(id);
+      }
+      else showFeed(null);
+    }
+    window.addEventListener('hashchange', route);
+    route();
+  </script>
+<div id="lightbox" onclick="this.classList.remove('open')">
+    <button id="lb-prev" onclick="event.stopPropagation();lbNav(-1)">‹</button>
+    <img src="" alt="">
+    <button id="lb-next" onclick="event.stopPropagation();lbNav(1)">›</button>
+    <div id="lb-counter"></div>
+  </div>
+  <div id="video-lightbox" onclick="if(event.target===this)closeVideoLightbox()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:1000;align-items:center;justify-content:center">
+    <div style="position:relative;width:min(92vw,800px)">
+      <video id="vl-video" controls style="width:100%;max-height:78vh;border-radius:8px;display:block;box-shadow:0 4px 40px rgba(0,0,0,0.6);object-fit:contain"></video>
+      <button onclick="closeVideoLightbox()" style="position:absolute;top:-36px;right:0;background:none;border:none;color:white;font-size:28px;cursor:pointer;line-height:1;opacity:0.8">×</button>
+    </div>
+  </div>
+</body>
+</html>
