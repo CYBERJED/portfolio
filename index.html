@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" type="image/png" href="images/favicon.png">
-  <title>JEDDIT</title>
+  <link rel="icon" type="image/png" href="images/jedface.png">
+  <title>Jedediah Baker | Portfolio</title>
   <style>
     body { font-family: sans-serif; background: #DAE0E6; margin: 0; }
-    header { background: white; border-bottom: 1px solid #edeff1; padding: 8px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
-    .logo { color: #FF4500; font-size: 20px; font-weight: 900; cursor: pointer; }
+    header { display: none; }
+    .logo { color: #24a47f; font-size: 20px; font-weight: 900; cursor: pointer; }
     .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-left: auto; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; user-select: none; }
 
     /* Layout */
@@ -25,18 +25,16 @@
     /* Post cards */
     .post { background: white; border: 1px solid #ccc; border-radius: 12px; margin-bottom: 10px; display: flex; cursor: pointer; }
     .post:hover { border-color: #888; }
-    .vote { width: 40px; background: #f8f9fa; display: flex; flex-direction: column; align-items: center; padding: 8px 4px; gap: 2px; font-size: 18px; color: #ccc; border-radius: 12px 0 0 12px; }
-    .vote span { font-size: 12px; font-weight: bold; color: #333; }
     .body { padding: 8px; flex: 1; }
     .meta { font-size: 12px; color: #888; margin-bottom: 4px; }
-    .meta .sublink { color: #FF4500; font-weight: bold; cursor: pointer; }
+    .meta .sublink { color: #24a47f; font-weight: bold; cursor: pointer; }
     .meta .sublink:hover { text-decoration: underline; }
     .meta b { color: #1c1c1c; }
     h2 { font-size: 18px; font-weight: 500; margin: 0 0 6px; }
     .foot { font-size: 12px; color: #888; }
 
     /* Post detail */
-    .back { color: #FF4500; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 12px; display: inline-block; }
+    .back { color: #24a47f; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 12px; display: inline-block; }
     .back:hover { text-decoration: underline; }
     .post-full { background: white; border: 1px solid #ccc; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
     .post-full h1 { font-size: 20px; font-weight: 500; margin: 6px 0 10px; }
@@ -63,9 +61,18 @@
     .audio-player .pi { width:16px; text-align:center; flex-shrink:0; font-size:11px; font-style:normal; }
     .audio-player .pt { font-size:13px; font-weight:500; color:#1c1c1c; }
 
+    /* Home card flip */
+    .home-card { perspective: 800px; cursor: pointer; aspect-ratio: 1; }
+    .home-card-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1); will-change: transform; }
+    .home-card.flipped .home-card-inner { transform: rotateY(180deg); }
+    .home-card-face { transition: box-shadow 0.15s ease; }
+    .home-card:hover .home-card-face { box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .home-card-face { position: absolute; inset: 0; border-radius: 16px; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+    .home-card-back { transform: rotateY(180deg); }
+
     /* Sidebar */
     .sidebar-card { background: white; border: 1px solid #ccc; border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
-    .sidebar-card-header { background: #FF4500; color: white; padding: 8px 12px; font-weight: bold; font-size: 13px; }
+    .sidebar-card-header { background: #24a47f; color: white; padding: 8px 12px; font-weight: bold; font-size: 13px; }
     .sidebar-card-body { padding: 8px; }
     .sub-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 4px; cursor: pointer; font-size: 13px; }
     .sub-row:hover { background: #f6f7f8; }
@@ -78,8 +85,6 @@
 </head>
 <body>
   <header>
-    <div class="logo" onclick="showFeed(null)">JEDDIT</div>
-    <div class="user-avatar" id="user-avatar" onclick="showFeed('about')" title="jed-2026"></div>
   </header>
 
   <div class="layout">
@@ -93,12 +98,12 @@
     // ============================================================
 
     const SUBREDDITS = [
-      { id: 'about',      name: 'j/about',      title: 'About',       icon: '☻︎', color: '#34495E', members: '1' },
-      { id: 'experience', name: 'j/experience', title: 'Experience',  icon: '✎︎', color: '#E03D00', members: '1' },
-      { id: 'education',  name: 'j/education',  title: 'Education',   icon: '⚑︎', color: '#1971C2', members: '1' },
-      { id: 'podcast',    name: 'j/podcast',    title: 'The Podcast', icon: '♫︎', color: '#9C36B5', members: '1' },
-      { id: 'hobbies',    name: 'j/hobbies',    title: 'Hobbies',     icon: '♟︎', color: '#F59F00', members: '1' },
-      { id: 'contact',    name: 'j/contact',    title: 'Contact',     icon: '☎︎', color: '#2C8A6E', members: '1' },
+      { id: 'about',      name: 'About',       title: 'About',       icon: '☻︎', color: '#34495E', members: '1' },
+      { id: 'experience', name: 'Experience',  title: 'Experience',  icon: '✎︎', color: '#E05C4B', members: '1' },
+      { id: 'education',  name: 'Education',   title: 'Education',   icon: '⚑︎', color: '#1971C2', members: '1' },
+      { id: 'podcast',    name: 'Podcast',     title: 'Podcast',     icon: '♫︎', color: '#9C36B5', members: '1' },
+      { id: 'hobbies',    name: 'Hobbies',     title: 'Hobbies',     icon: '♟︎', color: '#F59F00', members: '1' },
+      { id: 'contact',    name: 'Contact',     title: 'Contact',     icon: '☎︎', color: '#2C8A6E', members: '1' },
     ];
 
     const COMPANIES = [
@@ -373,7 +378,7 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
 \nAnother thing good actors do? Really pay attention to the others on stage. An actor who is just waiting for their turn to say their line will lose the audience. But an actor who's actually looking, listening, and reacting to what they're seeing and hearing? The audience will love it. And this too is a skill I've carried with me into my career: really listen, really see, and then react to what I've witnessed with action.
 \n<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Master of Arts in Folklore, Memorial University of Newfoundland</strong>\nAfter college I decided I wanted more college, and headed off to the island of Newfoundland to pursue a degree in Folklore. I studied legends, folktales, local traditions, intangible cultural heritage, and more while performing in a local production of CATS in my spare time. The study of folklore is really the study of the stories we tell each other and ourselves to make sense of the world. It's about the things we share, and why we share them, and what we hope others will get out of that.
 \nMy deep understanding of the how and why of storytelling is another skill I call upon frequently in my work as a content designer.
-\nI wrote a thesis — it's about applying the lens of folktale structuralism to personal experience recovery narratives. You can <a href="https://memorial.scholaris.ca/server/api/core/bitstreams/1dfc547a-7a8d-432c-a24b-d0dad0ac1e92/content" target="_blank" style="color:#FF4500;font-weight:bold">read it here</a>.`,
+\nI wrote a thesis — it's about applying the lens of folktale structuralism to personal experience recovery narratives. You can <a href="https://memorial.scholaris.ca/server/api/core/bitstreams/1dfc547a-7a8d-432c-a24b-d0dad0ac1e92/content" target="_blank" style="color:#24a47f;font-weight:bold">read it here</a>.`,
         comments: [
           { author: 'jed-1999', flair: 'HS Grad', time: 'just now', votes: 634, text: 'Are you telling me I graduate college and go <i>right back</i> to school again? I don\'t believe this.', replies: [
             { author: 'jed-2005', flair: 'Boston Era', time: 'just now', votes: 1200, text: 'No. You do odd jobs in Boston for a few years in between. You\'re gonna love working for Ghosts & Gravestones', replies: [] }
@@ -387,7 +392,7 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
         author: 'jed-2018', flair: 'Podcast Jed',
         time: '8 years ago', votes: '9',
         title: 'Introducing… The Jedediaries',
-        body: `<div style="display:flex;gap:16px;align-items:flex-start"><img src="images/JEDEDIARIES.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:160px;height:160px;object-fit:cover;border-radius:4px;flex-shrink:0;cursor:zoom-in"><div>In 2018, I did a weekly year-long podcast with my oldest friend, Torrey. Here's a synopsis:\n\n<i>25 years ago, a 12-year-old boy kept a diary. He wrote in it every single day of the year 1993. This year – 2018 – that boy is a 37-year-old man, and he's going through that diary, week by week, to see how he's different, how he's the same, and what we can learn by figuring out who we used to be. This is… <b>The Jedediaries</b>.</i>\n\nHave a listen <a href="https://thejedediaries.squarespace.com/" target="_blank" style="color:#FF4500;font-weight:bold">here</a>.</div></div>`,
+        body: `<div style="display:flex;gap:16px;align-items:flex-start"><img src="images/JEDEDIARIES.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:160px;height:160px;object-fit:cover;border-radius:4px;flex-shrink:0;cursor:zoom-in"><div>In 2018, I did a weekly year-long podcast with my oldest friend, Torrey. Here's a synopsis:\n\n<i>25 years ago, a 12-year-old boy kept a diary. He wrote in it every single day of the year 1993. This year – 2018 – that boy is a 37-year-old man, and he's going through that diary, week by week, to see how he's different, how he's the same, and what we can learn by figuring out who we used to be. This is… <b>The Jedediaries</b>.</i>\n\nHave a listen <a href="https://thejedediaries.squarespace.com/" target="_blank" style="color:#24a47f;font-weight:bold">here</a>.</div></div>`,
         comments: [
           { author: 'jed-1993', flair: 'Child Jed', time: 'just now', text: 'wait what', replies: [] }
         ]
@@ -416,7 +421,7 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
         author: 'jed-2026', flair: 'Current Jed',
         time: 'just now', votes: '5',
         title: "Let's talk.",
-        body: `<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px"><a href="mailto:JedediahBaker@gmail.com" style="color:#FF4500;font-weight:bold;font-size:15px;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><span style="color:#1c1c1c">→</span> Email</a><a href="https://www.linkedin.com/in/jedediahbaker/" target="_blank" style="color:#FF4500;font-weight:bold;font-size:15px;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><span style="color:#1c1c1c">→</span> LinkedIn</a><a href="JedediahBaker_resume-2026.pdf" target="_blank" style="color:#FF4500;font-weight:bold;font-size:15px;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><span style="color:#1c1c1c">→</span> Resume</a></div>I hope you've enjoyed this! Looking forward to connecting.`,
+        body: `<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px"><a href="mailto:JedediahBaker@gmail.com" style="color:#24a47f;font-weight:bold;font-size:15px;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><span style="color:#1c1c1c">→</span> Email</a><a href="https://www.linkedin.com/in/jedediahbaker/" target="_blank" style="color:#24a47f;font-weight:bold;font-size:15px;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><span style="color:#1c1c1c">→</span> LinkedIn</a></div>I hope you've enjoyed this! Looking forward to connecting.`,
         comments: []
       },
     ];
@@ -490,6 +495,31 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
       else { a.pause(); icon.textContent = '▶'; }
     }
 
+    function flipCard(el, subId) {
+      el.classList.add('flipped');
+      const sub = getSub(subId);
+
+      setTimeout(() => {
+        const rect = el.getBoundingClientRect();
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `position:fixed;z-index:999;pointer-events:none;border-radius:16px;background:${sub.color};left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;transition:left 0.38s cubic-bezier(0.4,0,0.2,1),top 0.38s cubic-bezier(0.4,0,0.2,1),width 0.38s cubic-bezier(0.4,0,0.2,1),height 0.38s cubic-bezier(0.4,0,0.2,1),border-radius 0.38s cubic-bezier(0.4,0,0.2,1)`;
+        document.body.appendChild(overlay);
+        void overlay.offsetWidth;
+        overlay.style.left = '0';
+        overlay.style.top = '0';
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.borderRadius = '0';
+
+        setTimeout(() => {
+          showFeed(subId);
+          overlay.style.transition = 'opacity 0.3s ease';
+          overlay.style.opacity = '0';
+          setTimeout(() => overlay.remove(), 300);
+        }, 400);
+      }, 380);
+    }
+
     function getSub(id) { return SUBREDDITS.find(s => s.id === id); }
 
     function renderComments(comments) {
@@ -511,7 +541,6 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
           <div class="sub-row-icon" style="background:${s.color}22;color:${s.color}">${s.icon}</div>
           <div>
             <div class="sub-row-name">${s.name}</div>
-            <div class="sub-row-members">${s.members} ${s.members === '1' ? 'member' : 'members'}</div>
           </div>
         </div>
         ${s.id === 'experience' ? companyLinks : ''}
@@ -521,20 +550,18 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
         <div class="sidebar-card">
           <div class="sidebar-card-body">
             <div class="sub-row" onclick="showFeed(null)">
-              <div class="sub-row-icon" style="background:#FF450022;color:#FF4500">⇧︎</div>
+              <div class="sub-row-icon" style="background:#24a47f22;color:#24a47f">⇧︎</div>
               <div><div class="sub-row-name">Home</div></div>
             </div>
           </div>
         </div>
         <div class="sidebar-card">
-          <div class="sidebar-card-header">Communities</div>
+          <div class="sidebar-card-header" style="padding:3px 12px"></div>
           <div class="sidebar-card-body">${rows}</div>
         </div>
 <div class="sidebar-card">
           <div class="sidebar-card-body" style="font-size:12px;color:#888;line-height:1.8;padding:12px">
-            <strong style="color:#1c1c1c">About JEDDIT</strong><br>
-            The portfolio for my application for a Senior Content Designer role at Reddit in May, 2026.<br><br>
-            Icon by ChatGPT. Code by Claude.<br>Words &amp; work by Jedediah Baker.
+            Code by Claude. Words by Jedediah Baker.
           </div>
         </div>
       `;
@@ -545,18 +572,14 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
         <div style="background:white;padding:16px;border-bottom:1px solid #eee;overflow:hidden">
           ${p.body.replace(/\n/g, '<br>')}
         </div>
-        ${p.comments.length ? `<div style="background:white;padding:16px"><div style="font-weight:bold;margin-bottom:12px">Comments</div>${renderComments(p.comments)}</div>` : ''}
       `;
     }
 
     function renderAccordionCards(posts) {
       return posts.map(p => `
         <div id="acard-${p.id}" class="post" onclick="expandPost('${p.id}')" style="cursor:pointer;margin-bottom:0">
-          <div class="vote">▲<span>${p.votes}</span>▼</div>
           <div class="body">
-            <div class="meta">Posted by <b>${p.author}</b> · ${p.time}</div>
-            <h2>${p.title}</h2>
-            <div class="foot">${p.comments.length} ${p.comments.length === 1 ? 'comment' : 'comments'}</div>
+            <h2>${p.title.includes(' - ') ? `<strong>${p.title.split(' - ')[0]}</strong> - ${p.title.split(' - ').slice(1).join(' - ')}` : p.title}</h2>
           </div>
         </div>
         <div id="aexpand-${p.id}" style="display:none;margin-bottom:16px;border:1px solid #ccc;border-top:none;border-radius:0 0 12px 12px;overflow:hidden"></div>
@@ -611,7 +634,7 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
             <div class="sub-icon-large">${sub.icon}</div>
             <div>
               <div class="sub-title">${sub.title}</div>
-              <div class="sub-name-small">${sub.name} · ${sub.members} members</div>
+              <div class="sub-name-small">${sub.name}</div>
             </div>
           </div>
         `;
@@ -620,34 +643,33 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
       if (subId) {
         // Accordion for multi-post subreddit feeds
         const backBtn = subId === 'experience' ? `<span class="back" onclick="showFeed(null)">← Back</span>` : '';
-        document.getElementById('main').innerHTML = backBtn + banner + renderAccordionCards(posts);
+        const sectionBar = subId === 'experience' ? `<div style="background:${sub.color};color:white;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:7px 16px;margin-bottom:0;border:1px solid #ccc;border-bottom:none">Experience</div>` : '';
+        document.getElementById('main').innerHTML = backBtn + sectionBar + banner + renderAccordionCards(posts);
+        if (sectionBar) {
+          const firstCard = document.querySelector('[id^="acard-"]');
+          if (firstCard) { firstCard.style.borderTopLeftRadius = '0'; firstCard.style.borderTopRightRadius = '0'; firstCard.style.borderTop = 'none'; }
+        }
         renderSidebar();
         window.scrollTo(0, 0);
-        history.replaceState(null, '', '#/j/' + subId);
+        history.replaceState(null, '', '#/' + subId);
         if (openPostId) expandPost(openPostId);
         else if (subId === 'experience') expandPost(posts[0].id);
         return;
       }
 
-      // Home: card grid, clicking opens subreddit
-      const cards = posts.map(p => {
-        const sub = getSub(p.subreddit);
-        const subLink = `<span class="sublink" onclick="event.stopPropagation();showFeed('${p.subreddit}')">${sub ? sub.name : p.subreddit}</span>`;
-        const thumb = p.thumbnail ? `<img src="${p.thumbnail}" style="width:72px;height:72px;object-fit:cover;border-radius:6px;flex-shrink:0;margin:0 5px 0 12px;align-self:center">` : '';
-        return `
-          <div class="post" onclick="showFeed('${p.subreddit}', '${p.id}')">
-            <div class="vote">▲<span>${p.votes}</span>▼</div>
-            <div class="body">
-              <div class="meta">${subLink} · Posted by <b>${p.author}</b> · ${p.time}</div>
-              <h2>${p.title}</h2>
-              <div class="foot">${p.comments.length} ${p.comments.length === 1 ? 'comment' : 'comments'}</div>
+      // Home: 3x2 grid of section squares with flip animation
+      const cards = SUBREDDITS.map(s => `
+        <div class="home-card" onclick="flipCard(this, '${s.id}')">
+          <div class="home-card-inner">
+            <div class="home-card-face" style="background:white;border:3px solid ${s.color}">
+              <div style="color:${s.color};font-size:24px;font-weight:900;letter-spacing:2px;text-transform:uppercase">${s.name}</div>
             </div>
-            ${thumb}
+            <div class="home-card-face home-card-back" style="background:${s.color}"></div>
           </div>
-        `;
-      }).join('');
+        </div>
+      `).join('');
 
-      document.getElementById('main').innerHTML = cards || '<div class="post-full">No posts here yet!</div>';
+      document.getElementById('main').innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">${cards}</div>`;
       renderSidebar();
       window.scrollTo(0, 0);
       history.replaceState(null, '', '#/');
@@ -661,46 +683,64 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
       document.getElementById('main').innerHTML = `
         <span class="back" onclick="${backAction}">← Back</span>
         <div class="post-full">
-          <div class="meta">
-            <span class="sublink" onclick="showFeed('${p.subreddit}')">${sub ? sub.name : p.subreddit}</span>
-            · Posted by <b>${p.author}</b> · ${p.flair} · ${p.time}
-          </div>
+          <div style="background:${sub ? sub.color : '#24a47f'};color:white;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:7px 16px;margin:-16px -16px 14px;cursor:pointer" onclick="showFeed('${p.subreddit}')">${sub ? sub.name : p.subreddit}</div>
           <h1>${p.title}</h1>
           ${p.images && p.images.length ? `<div style="display:grid;grid-template-columns:repeat(${Math.min(p.images.length,2)},1fr);gap:6px;margin-bottom:12px;border-radius:4px;overflow:hidden">${p.images.map(src => `<img src="${src}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block">`).join('')}</div>` : ''}
           <div style="overflow:hidden">${p.body.replace(/\n/g, '<br>')}</div>
         </div>
-        ${p.comments.length ? `<div class="comments"><div style="font-weight:bold;margin-bottom:12px">Comments</div>${renderComments(p.comments)}</div>` : ''}
       `;
       renderSidebar();
       window.scrollTo(0, 0);
       history.replaceState(null, '', '#/post/' + id);
     }
 
+    const EXPAND_ALL_COMPANIES = ['mind-company', 'etsy'];
+
+    function expandAllPosts(posts) {
+      posts.forEach(p => {
+        const expand = document.getElementById('aexpand-' + p.id);
+        const card = document.getElementById('acard-' + p.id);
+        if (!expand || !card) return;
+        if (!expand.dataset.rendered) {
+          expand.innerHTML = renderPostContent(p);
+          expand.querySelectorAll('audio').forEach(a => a.load());
+          expand.dataset.rendered = '1';
+        }
+        expand.style.display = 'block';
+        card.style.borderBottomLeftRadius = '0';
+        card.style.borderBottomRightRadius = '0';
+        card.style.marginBottom = '0';
+      });
+    }
+
     function showCompany(companyId, openPostId) {
       const company = COMPANIES.find(c => c.id === companyId);
       if (!company) return;
       const posts = POSTS.filter(p => company.posts.includes(p.id));
-      document.getElementById('main').innerHTML = `<span class="back" onclick="showFeed('experience')">← j/experience</span>` + renderAccordionCards(posts);
+      const companyIndex = COMPANIES.findIndex(c => c.id === companyId);
+      const prevCompany = COMPANIES[companyIndex - 1];
+      const nextCompany = COMPANIES[companyIndex + 1];
+      const companyNav = `
+        <div style="display:flex;justify-content:space-between;margin-top:16px">
+          <div>${prevCompany ? `<span class="back" onclick="showCompany('${prevCompany.id}')">← ${prevCompany.name}</span>` : ''}</div>
+          <div>${nextCompany ? `<span class="back" onclick="showCompany('${nextCompany.id}')">${nextCompany.name} →</span>` : ''}</div>
+        </div>`;
+
+      document.getElementById('main').innerHTML = `<span class="back" onclick="showFeed('experience')">← Experience</span>` + renderAccordionCards(posts) + companyNav;
       renderSidebar();
       window.scrollTo(0, 0);
       history.replaceState(null, '', '#/company/' + companyId);
       if (openPostId) expandPost(openPostId);
+      else if (EXPAND_ALL_COMPANIES.includes(companyId)) expandAllPosts(posts);
       else if (posts.length === 1) expandPost(posts[0].id);
     }
 
-    // Avatar
-    (function() {
-      const el = document.getElementById('user-avatar');
-      el.style.background = '#FF4500';
-      el.style.color = 'white';
-      el.textContent = '^_^';
-    })();
 
     // Init
     function route() {
       const hash = location.hash.replace(/^#\/?/, '');
       if (!hash || hash === '/') showFeed(null);
-      else if (hash.startsWith('j/')) showFeed(hash.slice(2));
+      else if (SUBREDDITS.find(s => s.id === hash)) showFeed(hash);
       else if (hash.startsWith('company/')) showCompany(hash.slice(8));
       else if (hash.startsWith('post/')) {
         const id = hash.slice(5);
