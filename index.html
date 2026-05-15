@@ -61,6 +61,10 @@
     .audio-player .pi { width:16px; text-align:center; flex-shrink:0; font-size:11px; font-style:normal; }
     .audio-player .pt { font-size:13px; font-weight:500; color:#1c1c1c; }
 
+    /* Home grid */
+    .home-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 700px) { .home-grid { grid-template-columns: repeat(2, 1fr); } }
+
     /* Home card flip */
     .home-card { perspective: 800px; cursor: pointer; aspect-ratio: 1; }
     .home-card-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1); will-change: transform; }
@@ -662,14 +666,14 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
         <div class="home-card" onclick="flipCard(this, '${s.id}')">
           <div class="home-card-inner">
             <div class="home-card-face" style="background:white;border:3px solid ${s.color}">
-              <div style="color:${s.color};font-size:24px;font-weight:900;letter-spacing:2px;text-transform:uppercase">${s.name}</div>
+              <div style="color:${s.color};font-size:clamp(10px,2.2vw,24px);font-weight:900;letter-spacing:2px;text-transform:uppercase;text-align:center;padding:0 8px">${s.name}</div>
             </div>
             <div class="home-card-face home-card-back" style="background:${s.color}"></div>
           </div>
         </div>
       `).join('');
 
-      document.getElementById('main').innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">${cards}</div>`;
+      document.getElementById('main').innerHTML = `<div class="home-grid">${cards}</div>`;
       renderSidebar();
       window.scrollTo(0, 0);
       history.replaceState(null, '', '#/');
