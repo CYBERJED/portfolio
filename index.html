@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <link rel="icon" type="image/png" href="images/jedface.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <title>Jedediah Baker | Portfolio</title>
   <style>
-    body { font-family: sans-serif; background: #DAE0E6; margin: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: #DAE0E6; margin: 0; font-size: 14px; line-height: 1.7; color: #333; }
     header { display: none; }
-    .logo { color: #24a47f; font-size: 20px; font-weight: 900; cursor: pointer; }
-    .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-left: auto; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; user-select: none; }
-
     /* Layout */
     .layout { max-width: 1100px; margin: 20px auto; padding: 0 20px; display: flex; gap: 24px; align-items: flex-start; }
     .main { flex: 1; min-width: 0; }
-    .sidebar { width: 280px; flex-shrink: 0; }
+    .sidebar { width: 220px; flex-shrink: 0; }
 
     /* Subreddit banner */
     .sub-banner { height: 80px; border-radius: 12px 12px 0 0; margin-bottom: 0; }
@@ -23,30 +23,17 @@
     .sub-name-small { font-size: 13px; color: #888; }
 
     /* Post cards */
-    .post { background: white; border: 1px solid #ccc; border-radius: 12px; margin-bottom: 10px; display: flex; cursor: pointer; }
+    .post { background: white; border: 1px solid #ccc; border-radius: 12px; margin-bottom: 0; display: flex; cursor: pointer; }
     .post:hover { border-color: #888; }
     .body { padding: 8px 8px 8px 16px; flex: 1; }
-    .meta { font-size: 12px; color: #888; margin-bottom: 4px; }
-    .meta .sublink { color: #24a47f; font-weight: bold; cursor: pointer; }
-    .meta .sublink:hover { text-decoration: underline; }
-    .meta b { color: #1c1c1c; }
-    h2 { font-size: 18px; font-weight: 500; margin: 0 0 6px; }
-    .foot { font-size: 12px; color: #888; }
+    h2 { font-size: 17px; font-weight: 600; margin: 0 0 4px; line-height: 1.3; }
 
     /* Post detail */
-    .back { color: #24a47f; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 12px; display: inline-block; }
-    .back:hover { text-decoration: underline; }
-    .post-full { background: white; border: 1px solid #ccc; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-    .post-full h1 { font-size: 20px; font-weight: 500; margin: 6px 0 10px; }
+.post-full { background: white; border: 1px solid #ccc; border-radius: 12px; padding: 16px; margin-bottom: 12px; overflow: hidden; }
+    .post-full h1 { font-size: 24px; font-weight: 700; margin: 6px 0 12px; line-height: 1.25; }
     .post-full p { font-size: 14px; line-height: 1.6; color: #333; }
 
-    /* Comments */
-    .comments { background: white; border: 1px solid #ccc; border-radius: 12px; padding: 16px; }
-    .comment { margin-bottom: 12px; }
-    .comment-meta { font-size: 12px; color: #888; margin-bottom: 4px; }
-    .comment-meta b { color: #1c1c1c; }
-    .comment-body { font-size: 14px; color: #333; line-height: 1.5; }
-    .replies { margin-left: 20px; border-left: 2px solid #edeff1; padding-left: 12px; margin-top: 10px; }
+
     #lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:1000; align-items:center; justify-content:center; cursor:zoom-out; }
     #lightbox.open { display:flex; }
     #lightbox img { max-width:90vw; max-height:90vh; object-fit:contain; border-radius:4px; box-shadow:0 4px 40px rgba(0,0,0,0.6); cursor:default; }
@@ -82,8 +69,6 @@
     .sub-row:hover { background: #f6f7f8; }
     .sub-row-icon { font-size: 18px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     .sub-row-name { font-weight: bold; }
-    .sub-row-members { font-size: 11px; color: #888; }
-
     .hidden { display: none; }
   </style>
 </head>
@@ -102,12 +87,12 @@
     // ============================================================
 
     const SUBREDDITS = [
-      { id: 'about',      name: 'About',       title: 'About',       icon: '☻︎', color: '#34495E', members: '1' },
-      { id: 'experience', name: 'Experience',  title: 'Experience',  icon: '✎︎', color: '#E05C4B', members: '1' },
-      { id: 'education',  name: 'Education',   title: 'Education',   icon: '⚑︎', color: '#1971C2', members: '1' },
-      { id: 'podcast',    name: 'Podcast',     title: 'Podcast',     icon: '♫︎', color: '#9C36B5', members: '1' },
-      { id: 'hobbies',    name: 'Hobbies',     title: 'Hobbies',     icon: '♟︎', color: '#F59F00', members: '1' },
-      { id: 'contact',    name: 'Contact',     title: 'Contact',     icon: '☎︎', color: '#2C8A6E', members: '1' },
+      { id: 'about',      name: 'About',       icon: '☻︎', color: '#34495E' },
+      { id: 'experience', name: 'Experience',  icon: '✎︎', color: '#E05C4B' },
+      { id: 'education',  name: 'Education',   icon: '⚑︎', color: '#1971C2' },
+      { id: 'podcast',    name: 'Podcast',     icon: '♫︎', color: '#9C36B5' },
+      { id: 'hobbies',    name: 'Hobbies',     icon: '♟︎', color: '#F59F00' },
+      { id: 'contact',    name: 'Contact',     icon: '☎︎', color: '#2C8A6E' },
     ];
 
     const COMPANIES = [
@@ -115,70 +100,55 @@
       { id: 'lemonade',     name: 'Lemonade',         logo: 'images/lemonade_inc__logo.jpeg',        posts: ['lemonade'] },
       { id: 'etsy',         name: 'Etsy',             logo: 'images/etsy_logo.jpeg',                 posts: ['etsy-ar', 'etsy-review', 'etsy-studio'] },
       { id: 'yammer',       name: 'Microsoft',         logo: 'images/microsoft_logo.jpeg',            posts: ['yammer'] },
-      { id: 'idea-factory', name: 'Idea Factory',     logo: 'images/the_idea_factory_2_logo.jpeg',   posts: ['idea-factory'] },
+      { id: 'idea-factory', name: 'The Idea Factory',     logo: 'images/the_idea_factory_2_logo.jpeg',   posts: ['idea-factory'] },
     ];
 
     const POSTS = [
       {
-        id: 'about-jed', images: ['images/me.png'],
+        id: 'about', images: ['images/me.png'],
         subreddit: 'about',
-        thumbnail: 'images/me.png',
-        author: 'jed-2026', flair: 'Current Jed',
-        time: 'just now', votes: '10',
         title: "Hi, I'm Jed. Nice to meet you!",
-        body: `I've been a professional writer for over a decade. I started my career at The Idea Factory, a small advertising agency in Newfoundland, writing commercials for TV and radio. I moved into UX & Product writing from there, working for Yammer, Etsy, and Lemonade — an enterprise social network, a two-sided online marketplace, and chatbot-powered insurance, respectively.\n\nMost recently, I was at The Mind Company (fka Elevate Labs), where I helped design and ship multiple features; managed the content of over 40 brain-training games, including correcting, updating, testing, and pushing to prod; oversaw the addition of multiple new daily puzzles to the Elevate app; and wrote puzzles for our daily trivia app, Spark.\n\nI adore doing meaningful work with an engaged and talented team, and thrive when developing a unique product voice and style, always focusing on consistency, clarity, comprehension, and camaraderie.\n\nI have a BA in Theatre from Muhlenberg College, and an MA in Folklore from Memorial University of Newfoundland.\n\nMy dog has no degrees or work experience but is very handsome.`,
-        comments: [
-          { author: 'jed-2016', flair: 'Yammer Era', time: 'just now', votes: 412, text: 'We finally get a dog!! What is his name??', replies: [
-            { author: 'jed-2026', flair: 'Current Jed', time: 'just now', votes: 891, text: 'Teddy! He\'s a Great Pyrenees mix and a big beautiful dummy', replies: [] }
-          ]}
-        ]
+        body: `I've been a professional writer for over a decade. I started my career at The Idea Factory, a small advertising agency in Newfoundland, writing commercials for TV and radio. I moved into UX & Product writing from there, working for Yammer, Etsy, Lemonade, and Prudential — a Microsoft-owned enterprise social network, a two-sided online vintage and crafted goods marketplace, chatbot-powered insurance aimed squarely at Millennials and Gen Z, and one of the world's largest financial services institutions, respectively.\n\nMost recently, I was at The Mind Company (formerly Elevate Labs), where I helped design and ship multiple features targeting long-term engagement and short-term retention; managed the content of over 40 brain-training games, including correcting & updating content in our custom CMS; oversaw the addition of multiple new daily puzzles to the Elevate app; and wrote trivia content for our newest app, Spark.\n\nI adore doing meaningful work with an engaged and talented team. I have years of experience working in agile, sprint-based environments. And I excel when working with a unique product voice and style, whether it's an established brand or building in the zero-to-one space.\n\nI have a BA in Theatre from Muhlenberg College, and an MA in Folklore from Memorial University of Newfoundland.\n\nMy dog has no degrees or work experience, but is very handsome.`,
       },
       {
-        id: 'experience-intro',
+        id: 'experience',
         subreddit: 'experience',
-        thumbnail: 'images/leaguename.PNG',
-        author: 'jed-2026', flair: 'Current Jed',
-        time: 'just now', votes: '8',
-        title: 'Where I\'ve worked and what I\'ve done',
-        body: `I've spent the last decade and half as a professional writer. I got my start copywriting at a small ad agency in Newfoundland, Canada. From there I moved into writing for app and website experiences, and I've never looked back.\n\nWhether you call it product writing, UX writing, or content designing, what I've been doing all this time remains the same: crafting flows in a specific voice that enable customers to do what they're trying to do, while at the same time achieving a company's goals.\n\nBelow are some examples of my work from over the years.`,
-        comments: []
+        title: '',
+        body: `Below are some examples of my work from over the years.`,
       },
       {
         id: 'mind-company-leagues',
         subreddit: 'experience',
-        author: 'jed-2026', flair: 'Current Jed',
-        time: 'just now', votes: '9',
-        title: 'The Mind Company - Anonymous Users in Elevate Leagues',
+        meta: { year: '2025', platform: 'iOS & Android', role: 'Senior Content Designer', team: 'CEO, Engineer, PM' },
+        title: 'The Mind Company - Enabling Anonymous Users in Elevate Leagues',
         body: `Elevate is a brain-training app with 40+ daily games across categories like math, speaking, and writing. While I was there, we launched Leagues: a weekly leaderboard where users earn XP and compete among a group of 19 others, with rewards for finishing at the top.
 
 We tested Leagues extensively before rolling it out, and found that a majority of users enjoyed the extra layer of competition. But after launch, a small and vocal minority of users pushed back, leaving bad reviews and negative posts on Reddit. After discussing the feedback with our CEO, we moved quickly to design a way for those users to hide Leagues from their experience. And in doing that, we discovered another problem.
 
-<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">What's in a Name</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">What's in a Name</strong>
 Up until now, users had not been able to see other users' names. With Leagues, we had decided to show a user's first name and last initial. But Elevate had historically allowed users to sign up without entering a name, which meant a portion of our user base had no name in the system at all. Additionally, we had to figure out a way to deal with users who intentionally edited their name to something inappropriate.
 
-For the problematic name case, a backend engineer and I integrated an LLM to screen user names for problematic content, replacing flagged ones automatically. For both those users and nameless ones, we generated placeholders, like "Player72951". But we'd gotten internal feedback that those players seemed like bots, and by allowing users to opt-out we were about to potentially have many more of these bot-coded players.
+For the problematic name case, a backend engineer and I integrated an LLM to screen usernames for problematic content, replacing flagged ones automatically. For both those users and nameless ones, we generated placeholders, like "Player72951". But we'd gotten internal feedback that those players seemed like bots, and by allowing users to opt-out we were about to potentially have many more of these bot-coded players.
 <div style="margin:12px auto;max-width:320px;text-align:center"><img src="images/Player12348.PNG" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"></div>
-<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">A Weekend of Naming</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">A Weekend of Naming</strong>
 I had been pushing for a more robust anonymous-naming system, and when the CEO suggested a similar concept for a solution, I took the idea and ran with it. After a chat with the CEO, I spent the weekend working closely with an engineer to build a better naming system. The idea: randomized adjective-noun combinations that felt natural and friendly.
 
-Assisted by an LLM I generated a large pool of adjectives and animal names, then manually reviewed them all, checking for offensive combinations, double meanings, slang, anything that could feel bad or wrong. Partway through this process, I realized that some of the names I'd approved were too long and would truncate in the app's UI, so I went back through the entire list. I trimmed things down so even that the longest adjective-noun combination would fit, testing directly in the iOS and Android apps until it was pixel-perfect.
+Assisted by an LLM, I generated a large pool of adjectives and animal names, then manually reviewed them all, checking for offensive combinations, double meanings, slang, anything that could feel bad or wrong. Partway through this process, I realized that some of the names I'd approved were too long and would truncate in the app's UI, so I went back through the entire list. I trimmed things down so that even the longest adjective-noun combination would fit, testing directly in the iOS and Android apps until it was pixel-perfect.
 <div style="margin:12px auto;max-width:320px;text-align:center"><img src="images/adj-nouns.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">The final lists: 120 adjectives and 145 nouns, making 17,400 possible combinations.</div></div>
 
 Later, we also took this opportunity to close the loopholes that exacerbated the problem in the first place. I worked closely with our engineers to update the app so name entry was required at sign-up, and we also removed the ability to delete your name from your profile on iOS.
 
-<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">The Result</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">The Result</strong>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0"><img src="images/leaguename.PNG" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/AffableAddax.PNG" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"></div>
 The content was ready to go by Monday, and we shipped that week. Positive feedback about the opt-out option started coming in immediately, which was a sharp contrast to the complaints we'd seen. And the adjective-noun names? I never saw a single piece of negative feedback about them.
 
 `,
-        comments: []
       },
       {
         id: 'mind-company-puzzles',
         subreddit: 'experience',
-        author: 'jed-2026', flair: 'Current Jed',
-        time: 'just now', votes: '8',
-        title: 'The Mind Company - 3 New Daily Elevate Puzzles',
+        meta: { year: '2025–2026', platform: 'iOS & Android', role: 'Senior Content Designer', team: 'Game Designer, Sound Designer, Product Designers, PM, Analysts, Engineers' },
+        title: 'The Mind Company - Determining the UX of 3 New Daily Puzzles',
         body: `Elevate added a daily crossword a few years ago. When the data showed it was meaningfully moving metrics, we decided to try adding more daily puzzles. I was integral in adding three to the app: Wordbend, Colorlink, and Crossmath.
 
 <strong>Wordbend</strong> and <strong>Colorlink</strong> were ported over from another app in our suite. I worked extensively on both to make sure they felt at home in Elevate, matching our visual style, UX patterns, SFX, animation, and content standards. Both before adding and during their betas, I conducted extensive user research: interviews, surveys, and digging into the numbers to understand what people thought about specific content. We then used those findings to shape the content going forward.
@@ -191,43 +161,39 @@ It was extremely important that these new puzzles look and feel like they belong
 Most people already know how to do a crossword, so that puzzle has no tutorial. When we decided to add Wordbend, we knew it would need some explaining. So we implemented a simple set of screens to guide the user, followed by an interactive swiping animation on the first word of the first puzzle they'd see. We followed this pattern for Colorlink, with a similar set of screens and interactive tutorial. Crossmath, too, got a set of instructions.
 
 For each of these, my goal was always to keep it simple and clear, in an order that made sense. And based on the positive feedback our new puzzles have received, I think we nailed it.
-<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Wordbend</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Wordbend</strong>
 <div style="position:relative;margin:8px 0;border-radius:6px;overflow:hidden;background:#111"><div data-ci="0" style="display:flex;transition:transform 0.3s ease"><img src="images/screenshot_riverbend_000.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_riverbend_001.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_riverbend_002.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_riverbend_003.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_riverbend_004.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"></div><button onclick="carouselNav(this,-1,5)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">‹</button><button onclick="carouselNav(this,1,5)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">›</button><div data-cc style="position:absolute;bottom:8px;right:10px;color:#fff;font-size:12px;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:10px">1 / 5</div></div>
-<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Colorlink</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Colorlink</strong>
 <div style="position:relative;margin:8px 0;border-radius:6px;overflow:hidden;background:#111"><div data-ci="0" style="display:flex;transition:transform 0.3s ease"><img src="images/screenshot_colorlink_000.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_colorlink_001.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_colorlink_002.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_colorlink_003.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"></div><button onclick="carouselNav(this,-1,4)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">‹</button><button onclick="carouselNav(this,1,4)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">›</button><div data-cc style="position:absolute;bottom:8px;right:10px;color:#fff;font-size:12px;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:10px">1 / 4</div></div>
-<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Crossmath</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Crossmath</strong>
 <div style="position:relative;margin:8px 0;border-radius:6px;overflow:hidden;background:#111"><div data-ci="0" style="display:flex;transition:transform 0.3s ease"><img src="images/screenshot_crossmath_000.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_crossmath_001.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/screenshot_crossmath_002.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"></div><button onclick="carouselNav(this,-1,3)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">‹</button><button onclick="carouselNav(this,1,3)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">›</button><div data-cc style="position:absolute;bottom:8px;right:10px;color:#fff;font-size:12px;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:10px">1 / 3</div></div>
 
 For our word puzzles, I was involved in weekly playtesting, sessions where the puzzle writer and I played through the puzzles in-app, to make sure the difficulty levels felt right, as well as to catch both grammatical and factual errors. Our backend engineers had built custom CMSes for each puzzle, so I could make fixes on the fly, and even suggest improvements to how they worked for future updates. And when a user wrote in with an error we missed, I'd hop right in and make the update.`,
-        comments: []
       },
       {
         id: 'mind-company-spark',
         subreddit: 'experience',
-        author: 'jed-2026', flair: 'Current Jed',
-        time: 'just now', votes: '7',
-        title: 'The Mind Company - Spark Days: Robots, Puppets, and Shakespeare',
-        body: `Spark is a daily trivia app launched by The Mind Company last year. Each day is built around a theme : ants, the underworld, dinosaurs, moss, etc. Each day consists of four puzzles that explore the theme from different angles. I was one of a small group of writers across the company who contributed content to Spark.
+        meta: { year: '2025–2026', platform: 'iOS & Android', role: 'Senior Content Designer', team: 'Other writers, Image sourcers' },
+        title: 'The Mind Company - Making Spark Days: Robots, Puppets, and Shakespeare',
+        body: `Spark is a daily trivia app launched by The Mind Company last year. Each day is built around a theme: ants, the underworld, dinosaurs, moss, etc. Each day consists of four puzzles that explore the theme from different angles. I was one of a small group of writers across the company who contributed content to Spark.
 
 For each day I authored, I wrote everything: the fronts and backs of the cards, the nodes and hyperlink texts in Links, and the Spotlights that followed each puzzle. Below are examples from three of my favorites.
 
-<strong style="display:block;margin-top:16px">Puzzle: This or That / Theme: Shakespeare</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Puzzle: This or That / Theme: Shakespeare</strong>
 Ten cards, two columns. The player has to sort them correctly by category. This or That usually relies on a punny or otherwise clever combination of categories; the theme for this one was "Bird or Bard".
-<strong style="display:block;margin-top:16px">Puzzle: Chrono / Theme: Puppets</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Puzzle: Chrono / Theme: Puppets</strong>
 The player is shown eight events from the history of puppetry, which they must sort into the correct chronological order.
-<strong style="display:block;margin-top:16px">Puzzle: Links / Theme: Robots</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Puzzle: Links / Theme: Robots</strong>
 Links is more complicated. It's four rounds with an increasing number of cards, each with a grid of facts connected to blank spots. The player must place the cards so that all the connections are true.
 <div style="display:flex;gap:10px;margin:20px 0 4px"><div onclick="openVideoLightbox('https://www.dropbox.com/scl/fi/3iwh8nrrpja6bsfidh3cz/SPARK-This_or_That-Shakespeare.mov?rlkey=ql3o3x7bjnge7msxjx794cpn8&st=zqflgd0s&raw=1')" style="flex:1;cursor:pointer;position:relative;border-radius:8px;overflow:hidden;background:#000"><video src="https://www.dropbox.com/scl/fi/3iwh8nrrpja6bsfidh3cz/SPARK-This_or_That-Shakespeare.mov?rlkey=ql3o3x7bjnge7msxjx794cpn8&st=zqflgd0s&raw=1" muted preload="metadata" onloadedmetadata="this.currentTime=0.5" style="width:100%;display:block;pointer-events:none"></video><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.25)"><div style="width:38px;height:38px;background:rgba(255,255,255,0.88);border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;margin-left:3px">▶</span></div></div><div style="position:absolute;bottom:0;left:0;right:0;padding:5px 8px;background:linear-gradient(transparent,rgba(0,0,0,0.75));color:#fff;font-size:11px;font-weight:600">"Bard to the Bone" - This or That</div></div><div onclick="openVideoLightbox('https://www.dropbox.com/scl/fi/6jturq5tkch0xbjf7cgyv/SPARK-Chrono-Puppets.mov?rlkey=6w2abckn4us2var14d8npy8x6&st=l90duh1h&raw=1')" style="flex:1;cursor:pointer;position:relative;border-radius:8px;overflow:hidden;background:#000"><video src="https://www.dropbox.com/scl/fi/6jturq5tkch0xbjf7cgyv/SPARK-Chrono-Puppets.mov?rlkey=6w2abckn4us2var14d8npy8x6&st=l90duh1h&raw=1" muted preload="metadata" onloadedmetadata="this.currentTime=0.5" style="width:100%;display:block;pointer-events:none"></video><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.25)"><div style="width:38px;height:38px;background:rgba(255,255,255,0.88);border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;margin-left:3px">▶</span></div></div><div style="position:absolute;bottom:0;left:0;right:0;padding:5px 8px;background:linear-gradient(transparent,rgba(0,0,0,0.75));color:#fff;font-size:11px;font-weight:600">"Puppet Shows" - Chrono</div></div><div onclick="openVideoLightbox('https://www.dropbox.com/scl/fi/4nq0z04ka9g2m3vbwf743/SPARK-Links-Robots.mov?rlkey=l4hk7p0i3snej0v9vfwlqgonv&st=kvmpdijh&raw=1')" style="flex:1;cursor:pointer;position:relative;border-radius:8px;overflow:hidden;background:#000"><video src="https://www.dropbox.com/scl/fi/4nq0z04ka9g2m3vbwf743/SPARK-Links-Robots.mov?rlkey=l4hk7p0i3snej0v9vfwlqgonv&st=kvmpdijh&raw=1" muted preload="metadata" onloadedmetadata="this.currentTime=0.5" style="width:100%;display:block;pointer-events:none"></video><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.25)"><div style="width:38px;height:38px;background:rgba(255,255,255,0.88);border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;margin-left:3px">▶</span></div></div><div style="position:absolute;bottom:0;left:0;right:0;padding:5px 8px;background:linear-gradient(transparent,rgba(0,0,0,0.75));color:#fff;font-size:11px;font-weight:600">"They, Robots" - Links</div></div></div>
 
 In addition to writing my own days, I also playtested and suggested edits for other writers' puzzles every week as an integral part of the QA pipeline.`,
-        comments: []
       },
       {
         id: 'lemonade',
         subreddit: 'experience',
-        author: 'jed-2023', flair: 'Lemonade Era',
-        time: '3 years ago', votes: '7',
-        title: 'Lemonade - Chatbot Style Guide',
+        meta: { year: '2022', platform: 'PDF', role: 'UX & Product Writing Lead', team: 'PMs, Designers, Translators, Legal' },
+        title: 'Lemonade - Creating a Chatbot Style Guide from Scratch',
         body: `I was the first and only UX & Product Writing Lead at Lemonade, which positions itself as insurance for Millennials and Gen Z. It's a carrier that wants to evolve with its customers over time, starting with renters insurance and then moving on to pet, car, homeowners, and life insurance, growing alongside them.
 
 Lemonade was built to be digital first, so users can sign up and make claims through the app or site, without ever talking to a real person.
@@ -239,53 +205,47 @@ But at the same time, all our language needed to be compliant. Working closely w
 What follows are selected pages from a Style Guide I created – the first of its kind at the company, and a document that made the jobs of my coworkers (and my job!) much easier. After I shared it with the team, there was a noticeable improvement in their first passes at UX copy.
 
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0"><img src="images/IMG_9755.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9754.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9760.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9759.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9758.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9757.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9756.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9770.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9774.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9773.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9771.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9772.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9766.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9763.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9762.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9761.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9778.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><img src="images/IMG_9777.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"></div>`,
-        comments: [
-          { author: 'jed-2028', flair: 'Future Jed', time: 'just now', votes: 2028, text: 'Guys you are not gonna believe what chatbots are like just 5 years later…', replies: [] }
-        ]
       },
       {
         id: 'etsy-ar',
         subreddit: 'experience',
-        author: 'jed-2021', flair: 'Etsy Era',
-        time: '5 years ago', votes: '8',
-        title: 'Etsy - App AR Feature',
-        body: `In 2020, Etsy released an augmented reality feature on our iOS app, allowing users to preview wall art in their homes using their iPhones. I worked closely with the designer, PM, and engineers from the very start of the process to ensure the language in this brand new experience was clear and concise.
+        meta: { year: '2020', platform: 'iOS', role: 'Senior UX Writer', team: 'Designer, PM, Engineers' },
+        title: 'Etsy - Adding Augmented Reality to the Etsy App',
+        body: `In 2020, Etsy released an augmented reality feature on our iOS app, allowing users to preview wall art in their homes using their iPhones. I worked closely with the designer, PM, and engineers from the very start of the process to ensure the language in this brand-new experience was clear and concise.
 
-<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Initial Design</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Initial Design</strong>
 Here's the initial design. Mostly system copy, not a lot of explanation, and definitely not in Etsy's voice.
 <img src="images/oldAR.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;margin:8px 0;display:block">
 
-<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Initial Copy</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Initial Copy</strong>
 Here's the copy written by the PM. Better! But likely far too long.
 <img src="images/CaseStudies.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;margin:8px 0;display:block">
 
-<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">My First Draft Copy</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">My First Draft Copy</strong>
 Here's my first pass, in product. Even though I'd shortened this, it's still too long — something I only realized once I saw it in action. Each of these steps can take a fraction of a second OR several seconds, so the copy needs to work in both situations.
 <div style="position:relative;margin:10px 0;border-radius:6px;overflow:hidden;background:#111"><div data-ci="0" style="display:flex;transition:transform 0.3s ease"><img src="images/oldAR1.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/oldAR2.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/oldAR3.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/oldAR4.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/oldAR5.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/oldAR6.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"></div><button onclick="carouselNav(this,-1,6)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">‹</button><button onclick="carouselNav(this,1,6)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">›</button><div data-cc style="position:absolute;bottom:8px;right:10px;color:#fff;font-size:12px;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:10px">1 / 6</div></div>
 
-<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Final Copy</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Final Copy</strong>
 It needed to be parsable at a glance, but if you end up with it on your screen for longer than an instant, it needed to help you move forward. After using the feature for a while, I edited things down to the final version in the app seen here. This version tells you what you need to know, in the order you need to know it. It leads with only the information you need if it works right away, but follows up with the details you'd need if it didn't.
 <div style="position:relative;margin:10px 0;border-radius:6px;overflow:hidden;background:#111"><div data-ci="0" style="display:flex;transition:transform 0.3s ease"><img src="images/finalAR1.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"><img src="images/finalAR2.png" class="lightbox-img" onclick="openLightbox(this.src)" style="min-width:100%;max-height:520px;object-fit:contain;cursor:zoom-in"></div><button onclick="carouselNav(this,-1,2)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">‹</button><button onclick="carouselNav(this,1,2)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">›</button><div data-cc style="position:absolute;bottom:8px;right:10px;color:#fff;font-size:12px;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:10px">1 / 2</div></div>
 
 This feature resulted in an increase in conversion! We also received some good press, were featured in the App Store, and got some lovely write-ups praising the "clear, stepped instructions" of our "deceptively simple approach".
 
 All in all, a successful first step into integrating a new technology, and one that we would iterate on moving forward.`,
-        comments: []
       },
       {
         id: 'etsy-review',
         subreddit: 'experience',
-        author: 'jed-2021', flair: 'Etsy Era',
-        time: '5 years ago', votes: '7',
-        title: 'Etsy - App Review Flow',
+        meta: { year: '2019', platform: 'iOS', role: 'Senior UX Writer', team: 'Research, Designers, PM, Engineers' },
+        title: 'Etsy - Updating the Etsy App\'s Review Flow',
         body: `The review flow in Etsy's iOS app hadn't been updated in years, and generally wasn't leading users to leave quality reviews. So we set out to completely redesign it, shifting to a multi-step process with a more conversational style.
 
-<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Old Review Flow</strong>
+<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Old Review Flow</strong>
 <img src="images/oldreviewflow.png" class="lightbox-img" onclick="openLightbox(this.src)" style="max-width:100%;width:auto;border-radius:4px;margin:8px auto;display:block">
 
 Thanks to in-depth interviews with Etsy customers where we studied their path-to-purchase journey with a focus on the listing screen, we learned that reviews were most likely to lead to a sale when they contained text and a photo, and covered multiple topics.
 
-So the team and I set out to design a flow that would increase the likelihood that we would get those things, without decreasing the amounts of reviews we'd get.
+So the team and I set out to design a flow that would increase the likelihood that we would get those things, without decreasing the number of reviews we'd get.
 
 We assumed that if we redesigned the flow, Etsy buyers would leave better reviews, and that better reviews would mean more sales for our sellers.
 
@@ -307,20 +267,16 @@ We let them know we'd love to see a photo, while helping them relax about their 
 
 At the end, we thank them, and send them off to hopefully buy something new!
 
-This upgrade increased both the average number of reviews submitted, and the amount of people who submitted a review with text. This is great because even though we made it longer, we didn't see a drop off in completion. On the contrary! More people left more in-depth reviews than before.
+This upgrade increased both the average number of reviews submitted, and the number of people who submitted a review with text. This is great because even though we made it longer, we didn't see a drop-off in completion. On the contrary! More people left more in-depth reviews than before.
 
 It also gave us subratings for item quality, seller communication, and shipping, information we never had access to before, and information we could now use to better understand our sellers and make things better for them.`,
-        comments: [
-          { author: 'jed-2023', flair: 'Lemonade Era', time: 'just now', votes: 312, text: 'I love that pineapple magnet.', replies: [] }
-        ]
       },
 
       {
         id: 'etsy-studio',
         subreddit: 'experience',
-        author: 'jed-2021', flair: 'Etsy Era',
-        time: '5 years ago', votes: '6',
-        title: "Etsy - Etsy Studio",
+        meta: { year: '2017', platform: 'Web', role: 'Senior UX Writer', team: 'Creative Director, Marketing, Engineers' },
+        title: "Etsy - Launching a New Craft Supply Website, Etsy Studio",
         body: `In 2017, Etsy launched Etsy Studio, a new online marketplace featuring only the craft supply inventory from Etsy.com. It was a great opportunity to develop a fresh but related brand with an action-oriented tone of voice.
 
 I was the sole UX Writer on the project, working closely with the Creative Director to develop and evolve the brand voice throughout the entire site. The work largely involved taking Etsy.com's existing UX copy and reworking it to fit the new brand.
@@ -333,15 +289,13 @@ I was the sole UX Writer on the project, working closely with the Creative Direc
 <div style="margin:16px 0"><img src="images/404.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">404 page</div></div>
 
 <div style="margin:16px 0"><img src="images/studiosunset.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">Sadly, Etsy Studio was sunsetted in 2018.</div></div>`,
-        comments: []
       },
 
       {
         id: 'yammer',
         subreddit: 'experience',
-        author: 'jed-2016', flair: 'Yammer Gang',
-        time: '9 years ago', votes: '5',
-        title: 'Microsoft - chat app Yammer Now',
+        meta: { year: '2014', platform: 'iOS', role: 'Product Copywriter', team: 'UX Designers, UI Designers, PMs, Engineers, Research' },
+        title: 'Microsoft - Building the Chat App Yammer Now',
         body: `Of all the projects I worked on at Yammer — the enterprise social network acquired by Microsoft — near the top of my favorites is the standalone chat app, Yammer Now.
 
 As the sole UX Writer (then known as a "Product Copywriter") on the team, I was responsible for all UX copy in the app, as well as the App Store description, marketing copy, and release notes.
@@ -351,22 +305,19 @@ It was a challenging and interesting experience: a scrappy, tight-knit squad sta
 Yammer Now integrated seamlessly with Yammer and allowed for quick and easy chats with your coworkers. The app dovetailed with our "Online Now" chat feature on the web, so the copy was a combination of totally new language and careful alterations of existing language from the web experience.
 
 <div style="position:relative;margin:16px 0 8px;border-radius:6px;overflow:hidden;background:#111"><div data-ci="0" style="display:flex;transition:transform 0.3s ease"><img src="images/Yammer-Now-01.png" style="min-width:100%;max-height:560px;object-fit:contain"><img src="images/Yammer-Now-02.png" style="min-width:100%;max-height:560px;object-fit:contain"><img src="images/Yammer-Now-03.png" style="min-width:100%;max-height:560px;object-fit:contain"><img src="images/Yammer-Now-04.png" style="min-width:100%;max-height:560px;object-fit:contain"><img src="images/Yammer-Now-05.png" style="min-width:100%;max-height:560px;object-fit:contain"></div><button onclick="carouselNav(this,-1,5)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">‹</button><button onclick="carouselNav(this,1,5)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;line-height:1">›</button><div data-cc style="position:absolute;bottom:8px;right:10px;color:#fff;font-size:12px;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:10px">1 / 5</div></div>`,
-        comments: []
       },
       {
         id: 'idea-factory',
         subreddit: 'experience',
-        author: 'jed-2012', flair: 'Idea Factory Era',
-        time: '14 years ago', votes: '9',
-        title: 'The Idea Factory - Radio spots',
-        body: `I spent several years at The Idea Factory, a small advertising agency based in Newfoundland, Canada. Here's some of my favorite work from that era.
+        meta: { year: '2010–2011', platform: 'Radio', role: 'Copywriter', team: 'Creative Director, Producers, Actors' },
+        title: 'The Idea Factory - Writing &amp; Recording Radio Spots',
+        body: `I got my start at The Idea Factory, a small advertising agency based in Newfoundland, Canada. I primarily wrote radio, TV, and print ads. Here are some of my favorite radio spots from that era.
 
-<strong>Get a Big Reaction! / The Great Wine Revolution</strong>
-<em>Client: Newfoundland and Labrador Liquor Corporation</em>
+<strong style="display:block;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Get a Big Reaction! / The Great Wine Revolution</strong>
+<em style="display:block;font-size:12px;color:#888;margin-bottom:8px">Client: Newfoundland and Labrador Liquor Corporation</em>
 
  The Get a Big Reaction! spots built on creative from the previous year — our good-natured host Colin accosts Christmas shoppers and shows them, via a machine called The Gift-o-matic™, how their terrible gifts are going to land. I evolved that concept by turning the Gift-o-matic™ into an audio machine that lets Colin's subjects hear the enthusiastically positive reactions gift-getters would have when they received a new NLC specialty gift card.
 
-<div style="margin:12px 0">
 <div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">NLC – Get a Big Reaction! – "The Royal Treatment" (:60)</span><audio src="https://www.dropbox.com/scl/fi/aencv7o8w04r956o5crqp/NLC_1RoyalTreatment_60radio.mp3?rlkey=ai5eld1fmnmgb27jjhftdk2gp&st=wpn895ly&raw=1"></audio></div>
 <div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">NLC – Get a Big Reaction! – "Wolf Blast" (:60)</span><audio src="https://www.dropbox.com/scl/fi/kdkm0roux7ivr39631zix/NLC_2WolfBlass_60radio.mp3?rlkey=hcb6gm5vel6vt5m4rckdm7ufq&st=kd5akjug&raw=1"></audio></div>
 <div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">NLC – Get a Big Reaction! – "Bud Right" (:60)</span><audio src="https://www.dropbox.com/scl/fi/m1xrif5yvaqofjz1dky7z/NLC_3BudRight_60radio.mp3?rlkey=1lxugehphrbyndxrgy3zu2fmt&st=9j8ba68p&raw=1"></audio></div>
@@ -376,8 +327,8 @@ The Great Wine Revolution spots I love for their ability to get their message ac
 <div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">NLC – The Great Wine Revolution – "Sir Branswort" (:15)</span><audio src="https://www.dropbox.com/scl/fi/rso11s1jhxhxpcvwr1aiz/NLC_TheGreatWineRevolution_Branswort.mp3?rlkey=oygxq4sofnje64zwc97ft0htv&st=afe080qk&raw=1"></audio></div>
 <div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">NLC – The Great Wine Revolution – "Karl" (:15)</span><audio src="https://www.dropbox.com/scl/fi/7cdix9cw4209f8oruzted/NLC_TheGreatWineRevolution_Karl.mp3?rlkey=prswrckegvzo6atcr6estzmkv&st=nii5ncd0&raw=1"></audio></div>
 
-<strong>The Adventures of Steve &amp; Alan</strong>
-<em>Client: Eastlink Cable Company</em>
+<strong style="display:block;margin-top:20px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">The Adventures of Steve &amp; Alan</strong>
+<em style="display:block;font-size:12px;color:#888;margin-bottom:8px">Client: Eastlink Cable Company</em>
 
 These were the first things I wrote at The Idea Factory. I've always been a fan of the smart-guy/dumb-guy dichotomy, and having Steve explain things to Alan turned out to be a perfect vehicle for showcasing Eastlink's suite of entertainment options. The actors playing Steve and Alan were my first choices for the roles, and they both nailed it.
 
@@ -387,47 +338,27 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
 <div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">Eastlink – Steve &amp; Alan – "Dark Elf Powers" (:30)</span><audio src="https://www.dropbox.com/scl/fi/7gw6owptz4b1lv254e2sb/eastlink_stvnalln_gaming.mp3?rlkey=0cu10dw4p888c7e9lv8aurusi&st=8mus023y&raw=1"></audio></div>
 <div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">Eastlink – Steve &amp; Alan – "WWTBAWP?" (:30)</span><audio src="https://www.dropbox.com/scl/fi/8hmgpzmukjkkitncxsbmd/eastlink_stvnalln_dvr.mp3?rlkey=aem67o4poinvvvmzdqdxtl5t2&st=yrn7dw75&raw=1"></audio></div>
 <div class="audio-player" onclick="toggleAudio(this)"><em class="pi">▶</em><span class="pt">Eastlink – Steve &amp; Alan – "Faster?" (:30)</span><audio src="https://www.dropbox.com/scl/fi/mn5x77a7ybwi2pog2vt2p/eastlink_stvnalln_hsi.mp3?rlkey=dgdw9c7ahbz1su82p78pmkqgt&st=7geddfsx&raw=1"></audio></div>`,
-        comments: [
-          { author: 'jed-2026', flair: 'Current Jed', time: 'just now', votes: 426, text: 'I still think about Steve & Alan sometimes, those knuckleheads', replies: [] }
-        ]
       },
       {
-        id: 'education-intro',
+        id: 'education',
         subreddit: 'education',
-        thumbnail: 'images/CAT.jpg',
-        author: 'jed-2026', flair: 'Current Jed',
-        time: 'just now', votes: '7',
-        title: 'BA in Theatre, MA in Folklore',
+        title: '',
         body: `I've never met a Content Designer who set out specifically to be one. I've found that we all came to it from different directions, but that our strong senses of empathy and wide-ranging interests made us perfect for the role. Here's the path I took.
-\n<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Bachelor of Arts in Theatre, Muhlenberg College</strong>\nI started college planning to get a double major in physics and theatre. My higher level math skills weren't quite up to snuff, however, so I went all in on the stage. Spending four years immersed in the world of acting taught me a lot about the subject, but what it also did was hone my capacity to understand the desires of others. A good actor truly puts themselves into another's shoes, and that skill is crucial for content designers as they view a flow from the user's point of view.
+\n<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Bachelor of Arts in Theatre, Muhlenberg College</strong>\nI started college planning to get a double major in physics and theatre. My higher level math skills weren't quite up to snuff, however, so I went all in on the stage. Spending four years immersed in the world of acting taught me a lot about the subject, but what it also did was hone my capacity to understand the desires of others. A good actor truly puts themselves into another's shoes, and that skill is crucial for content designers as they view a flow from the user's point of view.
 \nAnother thing good actors do? Really pay attention to the others on stage. An actor who is just waiting for their turn to say their line will lose the audience. But an actor who's actually looking, listening, and reacting to what they're seeing and hearing? The audience will love it. And this too is a skill I've carried with me into my career: really listen, really see, and then react to what I've witnessed with action.
-\n<strong style="display:block;margin-top:16px;text-transform:uppercase;font-size:11px;letter-spacing:0.8px;color:#888">Master of Arts in Folklore, Memorial University of Newfoundland</strong>\nAfter college I decided I wanted more college, and headed off to the island of Newfoundland to pursue a degree in Folklore. I studied legends, folktales, local traditions, intangible cultural heritage, and more while performing in a local production of CATS in my spare time. The study of folklore is really the study of the stories we tell each other and ourselves to make sense of the world. It's about the things we share, and why we share them, and what we hope others will get out of that.
+\n<strong style="display:block;margin-top:16px;font-size:15px;letter-spacing:0;color:#1c1c1c;margin-bottom:2px">Master of Arts in Folklore, Memorial University of Newfoundland</strong>\nAfter college, I decided I wanted more college, and headed off to the island of Newfoundland to pursue a degree in Folklore. I studied legends, folktales, local traditions, intangible cultural heritage, and more while performing in a local production of CATS in my spare time. The study of folklore is really the study of the stories we tell each other and ourselves to make sense of the world. It's about the things we share, and why we share them, and what we hope others will get out of that.
 \nMy deep understanding of the how and why of storytelling is another skill I call upon frequently in my work as a content designer.
 \nI wrote a thesis — it's about applying the lens of folktale structuralism to personal experience recovery narratives. You can <a href="https://memorial.scholaris.ca/server/api/core/bitstreams/1dfc547a-7a8d-432c-a24b-d0dad0ac1e92/content" target="_blank" style="color:#24a47f;font-weight:bold">read it here</a>.`,
-        comments: [
-          { author: 'jed-1999', flair: 'HS Grad', time: 'just now', votes: 634, text: 'Are you telling me I graduate college and go <i>right back</i> to school again? I don\'t believe this.', replies: [
-            { author: 'jed-2005', flair: 'Boston Era', time: 'just now', votes: 1200, text: 'No. You do odd jobs in Boston for a few years in between. You\'re gonna love working for Ghosts & Gravestones', replies: [] }
-          ]}
-        ]
       },
       {
         id: 'podcast',
         subreddit: 'podcast',
-        thumbnail: 'images/JEDEDIARIES.jpg',
-        author: 'jed-2018', flair: 'Podcast Jed',
-        time: '8 years ago', votes: '9',
         title: 'Introducing… The Jedediaries',
-        body: `<div style="display:flex;gap:16px;align-items:flex-start"><img src="images/JEDEDIARIES.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:160px;height:160px;object-fit:cover;border-radius:4px;flex-shrink:0;cursor:zoom-in"><div>In 2018, I did a weekly year-long podcast with my oldest friend, Torrey. Here's a synopsis:\n\n<i>25 years ago, a 12-year-old boy kept a diary. He wrote in it every single day of the year 1993. This year – 2018 – that boy is a 37-year-old man, and he's going through that diary, week by week, to see how he's different, how he's the same, and what we can learn by figuring out who we used to be. This is… <b>The Jedediaries</b>.</i>\n\nHave a listen <a href="https://thejedediaries.squarespace.com/" target="_blank" style="color:#24a47f;font-weight:bold">here</a>.</div></div>`,
-        comments: [
-          { author: 'jed-1993', flair: 'Child Jed', time: 'just now', text: 'wait what', replies: [] }
-        ]
+        body: `<div style="display:flex;gap:16px;align-items:flex-start"><img src="images/JEDEDIARIES.jpg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:160px;height:160px;object-fit:cover;border-radius:4px;flex-shrink:0;cursor:zoom-in"><div>In 2018, I did a weekly year-long podcast with my oldest friend, Torrey. Here's a synopsis:<div style="margin-bottom:8px"></div><i>25 years ago, a 12-year-old boy kept a diary. He wrote in it every single day of the year 1993. This year – 2018 – that boy is a 37-year-old man, and he's going through that diary, week by week, to see how he's different, how he's the same, and what we can learn by figuring out who we used to be. This is… <b>The Jedediaries</b>.</i><div style="margin-bottom:8px"></div>Have a listen <a href="https://thejedediaries.squarespace.com/" target="_blank" style="color:#24a47f;font-weight:bold">here</a>.</div></div>`,
       },
       {
-        id: 'hobbies-reading',
+        id: 'hobbies',
         subreddit: 'hobbies',
-        thumbnail: 'images/AHA.png',
-        author: 'jed-2026', flair: 'Current Jed',
-        time: 'just now', votes: '8',
         title: '"It&#39;s no better to be safe than sorry…"',
         body: `A non-exclusive selection of things I enjoy doing in my spare time.
 <div style="margin:16px 0"><img src="images/AHA.png" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">While this is me performing A-Ha's Take On Me at my wedding, I'll also never turn down a karaoke night.</div></div>
@@ -435,19 +366,12 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
 <div style="margin:16px 0"><img src="images/BOOK.jpeg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">Some of my books.</div></div>
 <div style="margin:16px 0"><img src="images/BIRD.jpeg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">I recently got a bird feeder with a video camera in it and my life has been changed for the better.</div></div>
 <div style="margin:16px 0"><img src="images/FOLIO.jpeg" class="lightbox-img" onclick="openLightbox(this.src)" style="width:100%;border-radius:4px;display:block"><div style="font-size:12px;color:#888;margin-top:6px">I live near Dartmouth College, and they have a real First Folio and anyone can see it!! This is it. (Not pictured: me freaking out.)</div></div>`,
-        comments: [
-          { author: 'jed-2003', flair: 'College Jed', votes: 847, time: 'just now', text: 'omg you get to <i>touch</i> a <i>First Folio???</i> Extremely jealous', replies: [] }
-        ]
       },
       {
         id: 'contact',
         subreddit: 'contact',
-        thumbnail: 'images/favicon.png',
-        author: 'jed-2026', flair: 'Current Jed',
-        time: 'just now', votes: '5',
         title: "Let's talk.",
         body: `<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px"><a href="mailto:JedediahBaker@gmail.com" style="color:#24a47f;font-weight:bold;font-size:15px;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><span style="color:#1c1c1c">→</span> Email</a><a href="https://www.linkedin.com/in/jedediahbaker/" target="_blank" style="color:#24a47f;font-weight:bold;font-size:15px;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><span style="color:#1c1c1c">→</span> LinkedIn</a></div>Really appreciate you taking the time to have a look at my work. Looking forward to connecting!`,
-        comments: []
       },
     ];
 
@@ -547,15 +471,6 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
 
     function getSub(id) { return SUBREDDITS.find(s => s.id === id); }
 
-    function renderComments(comments) {
-      return comments.map(c => `
-        <div class="comment">
-          <div class="comment-meta"><b>${c.author}</b> · ${c.flair} · ${c.time}</div>
-          <div class="comment-body">${c.text}</div>
-          ${c.replies.length ? `<div class="replies">${renderComments(c.replies)}</div>` : ''}
-        </div>
-      `).join('');
-    }
 
     function renderSidebar() {
       const companyLinks = COMPANIES.map(c => `
@@ -573,42 +488,70 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
 
       document.getElementById('sidebar').innerHTML = `
         <div class="sidebar-card">
-          <div class="sidebar-card-body">
-            <div class="sub-row" onclick="showFeed(null)">
-              <div class="sub-row-icon" style="background:#24a47f22;color:#24a47f">⇧︎</div>
-              <div><div class="sub-row-name">Home</div></div>
-            </div>
-          </div>
-        </div>
-        <div class="sidebar-card">
           <div class="sidebar-card-header" style="padding:3px 12px"></div>
           <div class="sidebar-card-body">${rows}</div>
         </div>
 <div class="sidebar-card">
           <div class="sidebar-card-body" style="font-size:12px;color:#888;line-height:1.8;padding:12px">
-            Code by Claude. Words by Jedediah Baker.
+            Code by Claude.<br>Words by Jedediah Baker.
           </div>
         </div>
       `;
+    }
+
+    function renderBody(text) {
+      return text.split(/\n\n+/).filter(para => para.trim()).map(para => {
+        const inner = para
+          .replace(/\n(<strong[^>]*display:block)/g, '$1')
+          .replace(/(<strong[^>]*display:block[^>]*>[^<]*<\/strong>)\n/g, '$1')
+          .replace(/(<\/div>)\n(<div)/g, '$1$2')
+          .replace(/\n/g, '<br>');
+        const isBlock = inner.includes('<div');
+        return isBlock
+          ? `<div style="margin:0 0 10px">${inner}</div>`
+          : `<p style="margin:0 0 10px">${inner}</p>`;
+      }).join('');
+    }
+
+    function renderMeta(p) {
+      if (!p.meta) return '';
+      const fields = [
+        p.meta.year     && ['Year',     p.meta.year],
+        p.meta.platform && ['Platform', p.meta.platform],
+        p.meta.role     && ['Role',     p.meta.role],
+        p.meta.team     && ['Primary collaborators', p.meta.team],
+      ].filter(Boolean);
+      if (!fields.length) return '';
+      return `<div style="display:flex;flex-wrap:wrap;gap:6px 20px;margin-bottom:14px;padding:9px 14px;background:#f6f7f8;border-radius:8px;font-size:12px;border:1px solid #eee">
+        ${fields.map(([k,v]) => `<span><span style="color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;font-size:10px">${k}&nbsp;</span><span style="color:#333">${v}</span></span>`).join('')}
+      </div>`;
     }
 
     function renderPostContent(p) {
       return `
         <div style="background:white;padding:16px;border-bottom:1px solid #eee;overflow:hidden">
-          ${p.body.replace(/\n/g, '<br>')}
+          ${renderMeta(p)}
+          ${renderBody(p.body)}
         </div>
       `;
     }
 
-    function renderAccordionCards(posts) {
-      return posts.map(p => `
-        <div id="acard-${p.id}" class="post" onclick="expandPost('${p.id}')" style="cursor:pointer;margin-bottom:0">
-          <div class="body">
-            <h2>${p.title.includes(' - ') ? `<strong>${p.title.split(' - ')[0]}</strong> - ${p.title.split(' - ').slice(1).join(' - ')}` : p.title}</h2>
+    function renderAccordionCards(posts, showCompanyLabel) {
+      return posts.map(p => {
+        const company = showCompanyLabel ? COMPANIES.find(c => c.posts.includes(p.id)) : null;
+        const strippedTitle = p.title.includes(' - ') ? p.title.split(' - ').slice(1).join(' - ') : p.title;
+        const displayTitle = showCompanyLabel ? strippedTitle : (p.title.includes(' - ') ? `<strong>${p.title.split(' - ')[0]}</strong> - ${strippedTitle}` : p.title);
+        const companyLabel = company ? `<div style="padding:0 16px 0 12px;display:flex;align-items:center;font-size:11px;color:#bbb;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;flex-shrink:0">${company.name}</div>` : '';
+        return `
+          <div id="acard-${p.id}" class="post" onclick="expandPost('${p.id}')" style="cursor:pointer">
+            <div class="body">
+              <h2>${displayTitle}</h2>
+            </div>
+            ${companyLabel}
           </div>
-        </div>
-        <div id="aexpand-${p.id}" style="display:none;margin-bottom:16px;border:1px solid #ccc;border-top:none;border-radius:0 0 12px 12px;overflow:hidden"></div>
-      `).join('');
+          <div id="aexpand-${p.id}" style="display:none;margin-bottom:16px;border:1px solid #ccc;border-top:none;border-radius:0 0 12px 12px;overflow:hidden"></div>
+        `;
+      }).join('');
     }
 
     function expandPost(id) {
@@ -635,7 +578,7 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
         card.style.borderBottomRightRadius = '0';
         card.style.marginBottom = '0';
         card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        history.replaceState(null, '', '#/post/' + id);
+        history.replaceState(null, '', '#/' + id);
       }
     }
 
@@ -658,7 +601,7 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
           <div class="sub-info">
             <div class="sub-icon-large">${sub.icon}</div>
             <div>
-              <div class="sub-title">${sub.title}</div>
+              <div class="sub-title">${sub.name}</div>
               <div class="sub-name-small">${sub.name}</div>
             </div>
           </div>
@@ -666,19 +609,14 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
       }
 
       if (subId) {
-        // Accordion for multi-post subreddit feeds
-        const backBtn = subId === 'experience' ? `<span class="back" onclick="showFeed(null)">← Back</span>` : '';
-        const sectionBar = subId === 'experience' ? `<div style="background:${sub.color};color:white;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:7px 16px;margin-bottom:0;border:1px solid #ccc;border-bottom:none">Experience</div>` : '';
-        document.getElementById('main').innerHTML = backBtn + sectionBar + banner + renderAccordionCards(posts);
-        if (sectionBar) {
-          const firstCard = document.querySelector('[id^="acard-"]');
-          if (firstCard) { firstCard.style.borderTopLeftRadius = '0'; firstCard.style.borderTopRightRadius = '0'; firstCard.style.borderTop = 'none'; }
-        }
+        const introPosts = posts.filter(p => !p.title);
+        const accordionPosts = posts.filter(p => p.title);
+        const sectionBar = subId === 'experience' ? `<div style="background:${sub.color};color:white;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:7px 16px;margin-bottom:10px;border-radius:12px">Experience</div>` : '';
+        document.getElementById('main').innerHTML = sectionBar + banner + renderAccordionCards(accordionPosts, subId === 'experience');
         renderSidebar();
         window.scrollTo(0, 0);
         history.replaceState(null, '', '#/' + subId);
         if (openPostId) expandPost(openPostId);
-        else if (subId === 'experience') expandPost(posts[0].id);
         return;
       }
 
@@ -706,17 +644,18 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
       const subPostCount = POSTS.filter(q => q.subreddit === p.subreddit).length;
       const backAction = subPostCount === 1 ? 'showFeed(null)' : `showFeed('${p.subreddit}')`;
       document.getElementById('main').innerHTML = `
-        <span class="back" onclick="${backAction}">← Back</span>
         <div class="post-full">
           <div style="background:${sub ? sub.color : '#24a47f'};color:white;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:7px 16px;margin:-16px -16px 14px;cursor:pointer" onclick="showFeed('${p.subreddit}')">${sub ? sub.name : p.subreddit}</div>
-          <h1>${p.title}</h1>
-          ${p.images && p.images.length ? `<div style="display:grid;grid-template-columns:repeat(${Math.min(p.images.length,2)},1fr);gap:6px;margin-bottom:12px;border-radius:4px;overflow:hidden">${p.images.map(src => `<img src="${src}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block">`).join('')}</div>` : ''}
-          <div style="overflow:hidden">${p.body.replace(/\n/g, '<br>')}</div>
+          ${p.title ? `<h1>${p.title}</h1>` : ''}
+          ${p.images && p.images.length === 1 ? `<img src="${p.images[0]}" style="float:left;width:220px;height:220px;object-fit:cover;border-radius:8px;margin:0 16px 8px 0">` : ''}
+          ${p.images && p.images.length > 1 ? `<div style="display:grid;grid-template-columns:repeat(${Math.min(p.images.length,2)},1fr);gap:6px;margin-bottom:12px;border-radius:4px;overflow:hidden">${p.images.map(src => `<img src="${src}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block">`).join('')}</div>` : ''}
+          <div>${renderBody(p.body)}</div>
+          <div style="clear:both"></div>
         </div>
       `;
       renderSidebar();
       window.scrollTo(0, 0);
-      history.replaceState(null, '', '#/post/' + id);
+      history.replaceState(null, '', '#/' + id);
     }
 
     const EXPAND_ALL_COMPANIES = ['mind-company', 'etsy'];
@@ -742,16 +681,26 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
       const company = COMPANIES.find(c => c.id === companyId);
       if (!company) return;
       const posts = POSTS.filter(p => company.posts.includes(p.id));
+      const strippedPosts = posts.map(p => ({
+        ...p,
+        title: p.title.includes(' - ') ? p.title.split(' - ').slice(1).join(' - ') : p.title
+      }));
       const companyIndex = COMPANIES.findIndex(c => c.id === companyId);
       const prevCompany = COMPANIES[companyIndex - 1];
       const nextCompany = COMPANIES[companyIndex + 1];
+      const navLinkStyle = 'color:#24a47f;font-size:13px;font-weight:bold;cursor:pointer;text-decoration:none';
       const companyNav = `
         <div style="display:flex;justify-content:space-between;margin-top:16px">
-          <div>${prevCompany ? `<span class="back" onclick="showCompany('${prevCompany.id}')">← ${prevCompany.name}</span>` : ''}</div>
-          <div>${nextCompany ? `<span class="back" onclick="showCompany('${nextCompany.id}')">${nextCompany.name} →</span>` : ''}</div>
+          <div>${prevCompany ? `<span style="${navLinkStyle}" onclick="showCompany('${prevCompany.id}')">← ${prevCompany.name}</span>` : ''}</div>
+          <div>${nextCompany ? `<span style="${navLinkStyle}" onclick="showCompany('${nextCompany.id}')">${nextCompany.name} →</span>` : ''}</div>
+        </div>`;
+      const companyHeader = `
+        <div style="background:white;border:1px solid #ccc;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <img src="${company.logo}" style="width:44px;height:44px;object-fit:contain;border-radius:8px;border:1px solid #eee;">
+          <div style="font-size:20px;font-weight:800;">${company.name}</div>
         </div>`;
 
-      document.getElementById('main').innerHTML = `<span class="back" onclick="showFeed('experience')">← Experience</span>` + renderAccordionCards(posts) + companyNav;
+      document.getElementById('main').innerHTML = companyHeader + renderAccordionCards(strippedPosts) + companyNav;
       renderSidebar();
       window.scrollTo(0, 0);
       history.replaceState(null, '', '#/company/' + companyId);
@@ -764,11 +713,11 @@ These were the first things I wrote at The Idea Factory. I've always been a fan 
     // Init
     function route() {
       const hash = location.hash.replace(/^#\/?/, '');
-      if (!hash || hash === '/') showFeed(null);
+      if (!hash || hash === '/') showFeed('about');
       else if (SUBREDDITS.find(s => s.id === hash)) showFeed(hash);
       else if (hash.startsWith('company/')) showCompany(hash.slice(8));
-      else if (hash.startsWith('post/')) {
-        const id = hash.slice(5);
+      else if (POSTS.find(q => q.id === hash)) {
+        const id = hash;
         const p = POSTS.find(q => q.id === id);
         if (!p) { showFeed(null); return; }
         const company = COMPANIES.find(c => c.posts.includes(id));
